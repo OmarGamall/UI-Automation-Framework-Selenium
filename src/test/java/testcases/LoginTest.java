@@ -3,29 +3,17 @@ package testcases;
 import drivers.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import pages.Login;
+import utils.actions.AlertActions;
 
-public class LoginTest {
+public class LoginTest extends BaseTest {
 
-    @BeforeMethod
-    @Parameters("browser")
-    public void setUp(@Optional("chrome") String browser)
+    @Test(description = "Verify successful login with valid credentials")
+    public void verifySuccessfulLogin()
     {
-        System.out.println("Setting up the test environment for browser: " + browser);
-        WebDriverFactory.create(browser);
-        WebDriverFactory.getDriver().get("https://www.demoblaze.com/");
-    }
-
-
-    @Test
-    public void testLogin()
-    {
-        String welcomeMessage = new Login(WebDriverFactory.getDriver())
+        WebDriver driver = WebDriverFactory.getDriver();
+        String welcomeMessage = new Login(driver)
                 .selectLoginTab()
                 .enterUsername("Omar Gamal")
                 .enterPassword("123")
@@ -33,16 +21,81 @@ public class LoginTest {
         Assert.assertEquals(welcomeMessage, "Welcome Omar Gamal");
     }
 
-    @AfterMethod(alwaysRun = true)
-    public void tearDown()
+    @Test(description = "Verify that logging in with an incorrect password displays a 'Wrong password.' alert")
+    public void verifyLoginWithIncorrectPassword()
     {
-        System.out.println("Tearing down the test environment");
         WebDriver driver = WebDriverFactory.getDriver();
-        if (driver != null) {
-            driver.quit();
-        }
-        WebDriverFactory.unload();
+        new Login(driver)
+                .selectLoginTab()
+                .enterUsername("Omar Gamal")
+                .enterPassword("wrongpassword")
+                .clickLogInButton();
+
+        AlertActions alertActions = new AlertActions(driver);
+        String alertText = alertActions.getAlertText();
+        Assert.assertEquals(alertText, "Wrong password.");
+        alertActions.acceptAlert();
+    }
+
+    @Test(description = "Verify that logging in with a non-existent username displays a 'User does not exist.' alert")
+    public void verifyLoginWithNonExistentUser() {
+        WebDriver driver = WebDriverFactory.getDriver();
+        new Login(driver)
+                .selectLoginTab()
+                .enterUsername("nonexistentuser")
+                .enterPassword("wrongpassword")
+                .clickLogInButton();
+
+        AlertActions alertActions = new AlertActions(driver);
+        String alertText = alertActions.getAlertText();
+        Assert.assertEquals(alertText, "User does not exist.");
+        alertActions.acceptAlert();
+    }
+
+    @Test(description = "Verify that attempting to log in with empty credentials displays a warning alert")
+    public void verifyLoginWithEmptyCredentials() {
+        WebDriver driver = WebDriverFactory.getDriver();
+        new Login(driver)
+                .selectLoginTab()
+                .enterUsername("")
+                .enterPassword("")
+                .clickLogInButton();
+
+        AlertActions alertActions = new AlertActions(driver);
+        String alertText = alertActions.getAlertText();
+        Assert.assertEquals(alertText, "Please fill out Username and Password.");
+        alertActions.acceptAlert();
+    }
+
+    @Test(description = "Verify that clicking the Close button cancels the login process and keeps the user as a guest")
+    public void verifyCancelLoginFromModal() {
+        WebDriver driver = WebDriverFactory.getDriver();
+        new Login(driver)
+                .selectLoginTab()
+                .enterUsername("Omar Gamal")
+                .enterPassword("123")
+                .clickCloseButton();
+        
+        pages.HomePage homePage = new pages.HomePage(driver);
+        Assert.assertTrue(homePage.isLoginButtonDisplayed(), "Login button should be displayed as user is guest");
+    }
+
+    @Test(description = "Verify that a logged-in user can successfully log out and terminate their session")
+    public void verifySuccessfulLogout() {
+        WebDriver driver = WebDriverFactory.getDriver();
+        pages.HomePage homePage = new Login(driver)
+                .selectLoginTab()
+                .enterUsername("Omar Gamal")
+                .enterPassword("123")
+                .clickLogInButton();
+
+        // Check login was successful first
+        Assert.assertEquals(homePage.getWelcomeMessage(), "Welcome Omar Gamal");
+        
+        // Log out
+        homePage.clickLogout();
+        
+        // Check log out was successful (Login button is displayed again)
+        Assert.assertTrue(homePage.isLoginButtonDisplayed(), "Login button should be displayed after logout");
     }
 }
-
-

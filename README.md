@@ -41,10 +41,12 @@ The framework is structured into distinct modular layers designed for high relia
 │   │       └── utils
 │   │           ├── WaitManager.java          # Configurable non-static FluentWait setup
 │   │           └── actions
+│   │               ├── AlertActions.java     # Wrapper actions for browser alerts
 │   │               └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   └── test
 │       └── java
 │           └── testcases
+│               ├── BaseTest.java             # Centralized setup & teardown for tests
 │               ├── LoginTest.java            # Thread-safe login test cases
 │               └── SignUpTest.java           # Thread-safe signup test cases
 │       └── resources
@@ -80,6 +82,10 @@ UI test failures are commonly caused by dynamic loading or elements not being re
    - **Scroll First**: Automatically scrolls to the target element using `Actions.scrollToElement(element).perform()` before interacting.
    - **Retry-on-Fail**: Wraps finding and interacting inside `waitManager.fluentWait().until(...)` with a custom lambda. If an action fails with an ignored exception, it automatically catches it, pauses, and retries the entire sequence.
    - **Empty Text Handling**: When retrieving text, if the text is empty/blank (as during async requests), it returns `null` inside the lambda, forcing the fluent wait to poll until the text is populated.
+   - **Visibility Checks**: Exposes `isDisplayed(By locator)` using `fluentWait` to asynchronously check if an element is visible, catching any exceptions and returning `false` on failure/timeout.
+3. **`AlertActions`**: Enforces dynamic synchronization for browser alerts:
+   - **Wait for Alert**: Automatically polls using `ExpectedConditions.alertIsPresent()` until the alert is present.
+   - **Encapsulated Actions**: Provides clean wrappers `getAlertText()`, `acceptAlert()`, `dismissAlert()`, and `sendKeysToAlert(String)`.
 
 ### Step 3: Page Object Model (POM)
 Pages (like `Login` and `HomePage`) encapsulate locators (`By`) and business actions.
@@ -88,9 +94,13 @@ Pages (like `Login` and `HomePage`) encapsulate locators (`By`) and business act
 
 ### Step 4: Test Cases & Execution Lifecycle
 Tests are designed to be isolated, parameterizable, and clean:
-- `setUp()`: Accepts a `@Parameters("browser")` value, creates the isolated driver using `WebDriverFactory.create(browser)`, and navigates to the URL.
-- Test methods: Use `WebDriverFactory.getDriver()` to retrieve the current thread's driver and pass it to page objects.
-- `tearDown()`: Shuts down the browser and cleans up thread-local storage using `WebDriverFactory.unload()`.
+
+1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
+   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, and navigates to the target URL.
+   - `tearDown()`: Quits the active driver and frees up the `ThreadLocal` registry using `WebDriverFactory.unload()`.
+2. **Concrete Test Classes (`LoginTest` / `SignUpTest`)**:
+   - Inherit from `BaseTest` to automatically receive clean, thread-safe test environment lifecycles.
+   - Test methods fetch the active thread-local driver using `WebDriverFactory.getDriver()` and pass it to page objects.
 
 ---
 

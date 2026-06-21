@@ -56,4 +56,18 @@ public class ElementActions {
             }
         });
     }
+
+    public boolean isDisplayed(By locator) {
+        try {
+            return waitManager.fluentWait().until(d -> {
+                try {
+                    return d.findElement(locator).isDisplayed();
+                } catch (Exception e) {
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

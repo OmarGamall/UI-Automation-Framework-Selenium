@@ -2,33 +2,46 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import utils.actions.ElementActions;
 
 public class SignUp {
-    WebDriver driver;
+    
+    // ==========================================
+    // Fields & Drivers
+    // ==========================================
+    private final WebDriver driver;
+    private final ElementActions elementActions;
 
-    // Page constructor
-    SignUp(WebDriver driver) {
+    // ==========================================
+    // Constructor
+    // ==========================================
+    public SignUp(WebDriver driver) {
         this.driver = driver;
+        this.elementActions = new ElementActions(driver);
     }
 
+    // ==========================================
     // Locators
-    private final By Username = By.id("sign-username");
-    private final By Password = By.id("sign-password");
-    private final By SignUpButton = By.xpath("//button[normalize-space()='Sign up']");
+    // ==========================================
+    private final By usernameInput = By.id("sign-username");
+    private final By passwordInput = By.id("sign-password");
+    private final By signUpButton = By.xpath("//button[normalize-space()='Sign up']");
 
-    // page actions
-    SignUp enterUsername(String username) {
-        driver.findElement(Username).sendKeys(username);
+    // ==========================================
+    // Page Actions
+    // ==========================================
+    public SignUp enterUsername(String username) {
+        elementActions.sendKeys(usernameInput, username);
         return this;
     }
 
-    SignUp enterPassword(String password) {
-        driver.findElement(Password).sendKeys(password);
+    public SignUp enterPassword(String password) {
+        elementActions.sendKeys(passwordInput, password);
         return this;
     }
 
-    HomePage clickSignUpButton() {
-        driver.findElement(SignUpButton).click();
+    public HomePage clickSignUpButton() {
+        elementActions.click(signUpButton);
         return new HomePage(driver);
     }
 }

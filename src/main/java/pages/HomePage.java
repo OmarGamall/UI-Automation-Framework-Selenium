@@ -5,21 +5,42 @@ import org.openqa.selenium.WebDriver;
 import utils.actions.ElementActions;
 
 public class HomePage {
-    WebDriver driver;
+    
+    // ==========================================
+    // Fields & Drivers
+    // ==========================================
+    private final WebDriver driver;
     private final ElementActions elementActions;
 
-    // page constructor
+    // ==========================================
+    // Constructor
+    // ==========================================
     public HomePage(WebDriver driver) {
         this.driver = driver;
         this.elementActions = new ElementActions(driver);
     }
 
+    // ==========================================
     // Locators
+    // ==========================================
     private final By welcomeMessage = By.id("nameofuser");
+    private final By loginButton = By.id("login2");
+    private final By logoutButton = By.id("logout2");
 
+    // ==========================================
+    // Page Actions
+    // ==========================================
     public String getWelcomeMessage() {
         return elementActions.getText(welcomeMessage);
     }
 
+    public boolean isLoginButtonDisplayed() {
+        return elementActions.isDisplayed(loginButton);
+    }
+
+    public HomePage clickLogout() {
+        elementActions.click(logoutButton);
+        return this;
+    }
 }
 
