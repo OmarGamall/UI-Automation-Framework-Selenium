@@ -7,13 +7,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 
 public class WaitManager {
-    private static WebDriver driver;
+    private  WebDriver driver;
 
     public WaitManager(WebDriver driver) {
-        WaitManager.driver = driver;
+        this.driver = driver;
     }
 
-    public static FluentWait<WebDriver> fluentWait() {
+    public FluentWait<WebDriver> fluentWait() {
         return new FluentWait<>(driver)
                 .withTimeout(Duration.ofSeconds(10)) //wait for 10 seconds
                 .pollingEvery(Duration.ofMillis(500))

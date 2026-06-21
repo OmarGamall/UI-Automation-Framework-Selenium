@@ -8,14 +8,15 @@ import utils.WaitManager;
 
 public class ElementActions {
     private final WebDriver driver;
+    private final WaitManager waitManager;
 
     public ElementActions(WebDriver driver) {
         this.driver = driver;
-        new WaitManager(driver);
+        this.waitManager = new WaitManager(driver);
     }
 
     public void click(By locator) {
-        WaitManager.fluentWait().until(d -> {
+        waitManager.fluentWait().until(d -> {
             try {
                 WebElement element = d.findElement(locator);
                 new Actions(d).scrollToElement(element).perform();
@@ -28,7 +29,7 @@ public class ElementActions {
     }
 
     public void sendKeys(By locator, String text) {
-        WaitManager.fluentWait().until(d -> {
+        waitManager.fluentWait().until(d -> {
             try {
                 WebElement element = d.findElement(locator);
                 new Actions(d).scrollToElement(element).perform();
@@ -41,7 +42,7 @@ public class ElementActions {
     }
 
     public String getText(By locator) {
-        return WaitManager.fluentWait().until(d -> {
+        return waitManager.fluentWait().until(d -> {
             try {
                 WebElement element = d.findElement(locator);
                 new Actions(d).scrollToElement(element).perform();
