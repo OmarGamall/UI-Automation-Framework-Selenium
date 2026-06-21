@@ -2,13 +2,16 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import utils.actions.ElementActions;
 
 public class Login {
     WebDriver driver;
+    private final ElementActions elementActions;
 
     // Page constructor
     public Login(WebDriver driver) {
         this.driver = driver;
+        this.elementActions = new ElementActions(driver);
     }
 
     // Locators
@@ -17,23 +20,24 @@ public class Login {
     private final By SignUpButton = By.xpath("//button[normalize-space()='Log in']");
 
     public Login selectLoginTab() {
-        driver.findElement(By.id("login2")).click();
+        elementActions.click(By.id("login2"));
         return this;
     }
 
     // page actions
     public Login enterUsername(String username) {
-        driver.findElement(Username).sendKeys(username);
+        elementActions.sendKeys(Username, username);
         return this;
     }
 
     public Login enterPassword(String password) {
-        driver.findElement(Password).sendKeys(password);
+        elementActions.sendKeys(Password, password);
         return this;
     }
 
     public HomePage clickLogInButton() {
-        driver.findElement(SignUpButton).click();
+        elementActions.click(SignUpButton);
         return new HomePage(driver);
     }
 }
+
