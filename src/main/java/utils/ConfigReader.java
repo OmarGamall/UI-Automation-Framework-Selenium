@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -7,14 +8,13 @@ public class ConfigReader {
     private static final Properties properties = new Properties();
 
     static {
-        try (InputStream input = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties")) {
-            if (input == null) {
-                System.out.println("Warning: config.properties file not found in resources folder.");
-            } else {
-                properties.load(input);
+        try (InputStream is = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (is == null) {
+                throw new RuntimeException("config.properties file not found in resources folder");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            properties.load(is);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load config.properties file", e);
         }
     }
 
