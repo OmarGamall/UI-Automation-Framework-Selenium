@@ -4,6 +4,7 @@ import drivers.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import pages.HomePage;
 import pages.Login;
 import utils.actions.AlertActions;
 
@@ -13,11 +14,12 @@ public class LoginTest extends BaseTest {
     public void verifySuccessfulLogin()
     {
         WebDriver driver = WebDriverFactory.getDriver();
-        String welcomeMessage = new Login(driver)
-                .selectLoginTab()
+        String welcomeMessage = new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("Omar Gamal")
                 .enterPassword("123")
-                .clickLogInButton().getWelcomeMessage();
+                .clickLogInButton()
+                .getWelcomeMessage();
         Assert.assertEquals(welcomeMessage, "Welcome Omar Gamal");
     }
 
@@ -25,8 +27,8 @@ public class LoginTest extends BaseTest {
     public void verifyLoginWithIncorrectPassword()
     {
         WebDriver driver = WebDriverFactory.getDriver();
-        new Login(driver)
-                .selectLoginTab()
+        new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("Omar Gamal")
                 .enterPassword("wrongpassword")
                 .clickLogInButton();
@@ -40,8 +42,8 @@ public class LoginTest extends BaseTest {
     @Test(description = "Verify that logging in with a non-existent username displays a 'User does not exist.' alert")
     public void verifyLoginWithNonExistentUser() {
         WebDriver driver = WebDriverFactory.getDriver();
-        new Login(driver)
-                .selectLoginTab()
+        new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("nonexistentuser")
                 .enterPassword("wrongpassword")
                 .clickLogInButton();
@@ -55,8 +57,8 @@ public class LoginTest extends BaseTest {
     @Test(description = "Verify that attempting to log in with empty credentials displays a warning alert")
     public void verifyLoginWithEmptyCredentials() {
         WebDriver driver = WebDriverFactory.getDriver();
-        new Login(driver)
-                .selectLoginTab()
+        new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("")
                 .enterPassword("")
                 .clickLogInButton();
@@ -70,21 +72,20 @@ public class LoginTest extends BaseTest {
     @Test(description = "Verify that clicking the Close button cancels the login process and keeps the user as a guest")
     public void verifyCancelLoginFromModal() {
         WebDriver driver = WebDriverFactory.getDriver();
-        new Login(driver)
-                .selectLoginTab()
+        HomePage homePage = new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("Omar Gamal")
                 .enterPassword("123")
                 .clickCloseButton();
         
-        pages.HomePage homePage = new pages.HomePage(driver);
         Assert.assertTrue(homePage.isLoginButtonDisplayed(), "Login button should be displayed as user is guest");
     }
 
     @Test(description = "Verify that a logged-in user can successfully log out and terminate their session")
     public void verifySuccessfulLogout() {
         WebDriver driver = WebDriverFactory.getDriver();
-        pages.HomePage homePage = new Login(driver)
-                .selectLoginTab()
+        HomePage homePage = new HomePage(driver)
+                .clickLoginTab()
                 .enterUsername("Omar Gamal")
                 .enterPassword("123")
                 .clickLogInButton();

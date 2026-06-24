@@ -26,6 +26,7 @@ public class SignUp {
     private final By usernameInput = By.id("sign-username");
     private final By passwordInput = By.id("sign-password");
     private final By signUpButton = By.xpath("//button[normalize-space()='Sign up']");
+    private final By closeButton = By.xpath("//div[@id='signInModal'] //button[normalize-space()='Close']");
 
     // ==========================================
     // Page Actions
@@ -42,6 +43,11 @@ public class SignUp {
 
     public HomePage clickSignUpButton() {
         elementActions.click(signUpButton);
+        return new HomePage(driver);
+    }
+
+    public HomePage clickCloseButton() {
+        elementActions.click(closeButton);
         return new HomePage(driver);
     }
 }

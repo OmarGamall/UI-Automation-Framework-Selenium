@@ -25,18 +25,12 @@ public class Login {
     // ==========================================
     private final By usernameInput = By.id("loginusername");
     private final By passwordInput = By.id("loginpassword");
-    private final By loginTab = By.id("login2");
     private final By loginButton = By.xpath("//button[normalize-space()='Log in']");
     private final By closeButton = By.xpath("//div[@id='logInModal']//button[normalize-space()='Close']");
 
     // ==========================================
     // Page Actions
     // ==========================================
-    public Login selectLoginTab() {
-        elementActions.click(loginTab);
-        return this;
-    }
-
     public Login enterUsername(String username) {
         elementActions.sendKeys(usernameInput, username);
         return this;

@@ -25,6 +25,7 @@ public class HomePage {
     // ==========================================
     private final By welcomeMessage = By.id("nameofuser");
     private final By loginButton = By.id("login2");
+    private final By signUpButton = By.id("signin2");
     private final By logoutButton = By.id("logout2");
 
     // ==========================================
@@ -36,6 +37,20 @@ public class HomePage {
 
     public boolean isLoginButtonDisplayed() {
         return elementActions.isDisplayed(loginButton);
+    }
+
+    public boolean isSignUpButtonDisplayed() {
+        return elementActions.isDisplayed(signUpButton);
+    }
+
+    public Login clickLoginTab() {
+        elementActions.click(loginButton);
+        return new Login(driver);
+    }
+
+    public SignUp clickSignUpTab() {
+        elementActions.click(signUpButton);
+        return new SignUp(driver);
     }
 
     public HomePage clickLogout() {
