@@ -14,7 +14,8 @@ public class BaseTest {
     public void setUp(@Optional("chrome") String browser)
     {
         System.out.println("Setting up the test environment for browser: " + browser);
-        WebDriverFactory.create(browser).get("https://www.demoblaze.com/");
+        String url = utils.ConfigReader.getProperty("url", "https://www.demoblaze.com/");
+        WebDriverFactory.create(browser).get(url);
     }
 
     @AfterMethod(alwaysRun = true)

@@ -1,0 +1,47 @@
+package utils;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+public class ConfigReader {
+    private static final Properties properties = new Properties();
+
+    static {
+        try (InputStream input = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) {
+                System.out.println("Warning: config.properties file not found in resources folder.");
+            } else {
+                properties.load(input);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Retrieves value for the given key from System properties (takes precedence)
+     * or defaults to the properties file.
+     *
+     * @param key the property key to look up
+     * @return the property value, or null if not found
+     */
+    public static String getProperty(String key) {
+        String systemProperty = System.getProperty(key);
+        if (systemProperty != null) {
+            return systemProperty;
+        }
+        return properties.getProperty(key);
+    }
+
+    /**
+     * Retrieves value for the given key. Returns defaultValue if the key is not found.
+     *
+     * @param key the property key to look up
+     * @param defaultValue fallback value
+     * @return the property value, or defaultValue if not found
+     */
+    public static String getProperty(String key, String defaultValue) {
+        String value = getProperty(key);
+        return value != null ? value : defaultValue;
+    }
+}

@@ -28,21 +28,24 @@ The framework is structured into distinct modular layers designed for high relia
 ```text
 ├── src
 │   ├── main
-│   │   └── java
-│   │       ├── drivers
-│   │       │   ├── AbstractDriver.java       # Factory method base class
-│   │       │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
-│   │       │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
-│   │       │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
-│   │       ├── pages
-│   │       │   ├── HomePage.java             # Home page elements and actions
-│   │       │   ├── Login.java                # Login page elements and actions
-│   │       │   └── SignUp.java               # Sign up page elements and actions
-│   │       └── utils
-│   │           ├── WaitManager.java          # Configurable non-static FluentWait setup
-│   │           └── actions
-│   │               ├── AlertActions.java     # Wrapper actions for browser alerts
-│   │               └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
+│   │   ├── java
+│   │   │   ├── drivers
+│   │   │   │   ├── AbstractDriver.java       # Factory method base class
+│   │   │   │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
+│   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
+│   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
+│   │   │   ├── pages
+│   │   │   │   ├── HomePage.java             # Home page elements and actions
+│   │   │   │   ├── Login.java                # Login page elements and actions
+│   │   │   │   └── SignUp.java               # Sign up page elements and actions
+│   │   │   └── utils
+│   │   │       ├── ConfigReader.java         # Thread-safe environment properties configuration reader
+│   │   │       ├── WaitManager.java          # Configurable non-static FluentWait setup
+│   │   │       └── actions
+│   │   │           ├── AlertActions.java     # Wrapper actions for browser alerts
+│   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
+│   │   └── resources
+│   │       └── config.properties             # Target URL configuration property file
 │   └── test
 │       └── java
 │           └── testcases
@@ -100,7 +103,7 @@ Pages (like `Login` and `HomePage`) encapsulate locators (`By`) and business act
 Tests are designed to be isolated, parameterizable, and highly readable:
 
 1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
-   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, and navigates to the target URL.
+   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `ConfigReader.getProperty("url")`, and launches the browser to navigate to it.
    - `tearDown()`: Quits the active driver and frees up the `ThreadLocal` registry using `WebDriverFactory.unload()`.
 2. **Concrete Test Classes (`LoginTest` / `SignUpTest`)**:
    - Inherit from `BaseTest` to automatically receive clean, thread-safe test environment lifecycles.
@@ -114,6 +117,15 @@ Tests are designed to be isolated, parameterizable, and highly readable:
              .clickLogInButton()
              .getWelcomeMessage();
      ```
+
+---
+
+### Step 5: Configuration Management & Scalability
+To support scaling up execution across multiple test environments (such as Dev, QA, Staging, and Production) without modifying any code, we externalize settings:
+
+1. **`config.properties`**: A centralized properties file in the resources folder containing default key-value pairs (e.g. `url=https://www.demoblaze.com/`).
+2. **`ConfigReader`**: A thread-safe utility class that loads configurations once in a static initialization block.
+3. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com`). System properties take absolute precedence over the properties file values.
 
 ---
 
@@ -159,5 +171,9 @@ Instructs the `maven-surefire-plugin` to run using the `testng.xml` suite:
 Execute the test suite from the root directory using Maven:
 
 ```bash
+# Run tests with the default URL configured in config.properties
 mvn clean test
+
+# Run tests overriding the URL for a different environment (e.g., QA or Staging)
+mvn clean test -Durl=https://staging.demoblaze.com/
 ```
