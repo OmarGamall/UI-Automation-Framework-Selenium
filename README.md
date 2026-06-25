@@ -31,6 +31,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   ├── java
 │   │   │   ├── drivers
 │   │   │   │   ├── AbstractDriver.java       # Factory method base class
+│   │   │   │   ├── Browser.java              # Enum defining supported browsers and factories
 │   │   │   │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
 │   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
@@ -72,9 +73,12 @@ To support parallel test execution without browser state collision, driver creat
    - Practice the *Driver Options* concept to optimize browser launches.
    - Configure arguments: `--disable-notifications` and `--start-maximized`.
    - Set `PageLoadStrategy.EAGER` for faster load times.
-3. **`WebDriverFactory` (Simple Factory Facade + ThreadLocal)**:
+3. **`Browser` (Enum-based Driver Registry)**:
+   - Defines the supported browsers (`CHROME`, `EDGE`).
+   - Each enum constant overrides an abstract `getDriver()` method returning its corresponding `AbstractDriver` factory implementation, adhering to the Open-Closed Principle (OCP) at the factory consumption level.
+4. **`WebDriverFactory` (Simple Factory Facade + ThreadLocal)**:
    - Houses the `ThreadLocal<WebDriver>` storage.
-   - Exposes `create(browserName)` which retrieves the correct factory internally, registers the initialized driver to the thread context, and returns it.
+   - Exposes `create(browserName)` which delegates to the `Browser` enum to resolve the factory, protects it with `ThreadGuard.protect(...)`, registers the driver to the thread context, and returns it.
    - Exposes `getDriver()` to fetch the active thread's driver and `unload()` to clear thread references.
 
 ### Step 2: Actions Layer & Dynamic Synchronization
