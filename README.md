@@ -53,9 +53,8 @@ The framework is structured into distinct modular layers designed for high relia
 │               ├── BaseTest.java             # Centralized setup & teardown for tests
 │               ├── LoginTest.java            # Thread-safe login test cases
 │               └── SignUpTest.java           # Thread-safe signup test cases
-│       └── resources
-│           └── testng.xml                    # Suite configuration for parallel execution
 ├── pom.xml                                   # Maven dependencies and plugin builds
+├── testng.xml                                # Suite configuration for parallel execution
 └── README.md
 ```
 
@@ -137,7 +136,7 @@ To support scaling up execution across multiple test environments (such as Dev, 
 
 We define the parallel run strategy in TestNG and plug it into Maven:
 
-### 1. `src/test/resources/testng.xml`
+### 1. `testng.xml` (Project Root)
 Defines suite settings to run tests in parallel at the class level:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -162,7 +161,7 @@ Instructs the `maven-surefire-plugin` to run using the `testng.xml` suite:
     <version>3.2.5</version>
     <configuration>
         <suiteXmlFiles>
-            <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+            <suiteXmlFile>testng.xml</suiteXmlFile>
         </suiteXmlFiles>
     </configuration>
 </plugin>
