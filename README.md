@@ -46,7 +46,10 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │           ├── AlertActions.java     # Wrapper actions for browser alerts
 │   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   │   └── resources
-│   │       └── config.properties             # Default target URL and framework configurations
+│   │       ├── browser.properties            # Browser headless option configuration
+│   │       ├── env.properties                # Target application URL configuration
+│   │       ├── retry.properties              # Flaky test retry mechanism configuration
+│   │       └── waits.properties              # Explicit / Implicit Wait timing and polling configuration
 │   └── test
 │       ├── java
 │       │   ├── listeners
@@ -55,12 +58,13 @@ The framework is structured into distinct modular layers designed for high relia
 │       │   │   └── TestExecutionListener.java # Automatically loads properties on TestNG execution start
 │       │   └── testcases
 │       │       ├── BaseTest.java             # Centralized setup & teardown for tests
-│       │       ├── LoginTest.java            # Thread-safe login test cases
+│       │       ├── LoginTest.java            # Thread-safe login test cases (uses usercredentials.properties)
 │       │       └── SignUpTest.java           # Thread-safe signup test cases
 │       └── resources
-│           └── META-INF
-│               └── services
-│                   └── org.testng.ITestNGListener # SPI registration for TestExecutionListener and AnnotationTransformer
+│           ├── META-INF
+│           │   └── services
+│           │       └── org.testng.ITestNGListener # SPI registration for TestExecutionListener and AnnotationTransformer
+│           └── usercredentials.properties     # Externalized user login test data
 ├── pom.xml                                   # Maven dependencies and plugin builds
 ├── testng.xml                                # Suite configuration for parallel execution
 └── README.md
@@ -134,15 +138,20 @@ Tests are designed to be isolated, parameterizable, and highly readable:
 ### Step 5: Configuration Management & Scalability
 To support scaling up execution across multiple test environments (such as Dev, QA, Staging, and Production) without modifying any code, we externalize settings:
 
-1. **`config.properties`**: A centralized properties file in the resources folder containing default key-value pairs (e.g. `url`, `timeout.seconds`, `polling.ms`, `headless`).
-2. **`PropertyReader`**: A thread-safe utility class that recursively scans resources directories (`src/main/resources` and `src/test/resources`) for all `.properties` files, merges them, and makes them available globally.
-3. **TestNG SPI Execution Listener**: A `TestExecutionListener` is registered through Java SPI (`META-INF/services/org.testng.ITestNGListener`) to automatically invoke property loading at the start of TestNG execution.
-4. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com` or `-Dheadless=true`). System properties take absolute precedence over the properties files values.
+1. **Modular Configuration Files**: Split configurations by domain under resources (`src/main/resources`):
+   - `env.properties`: stores application environments (e.g., target URL).
+   - `browser.properties`: configures browser settings (e.g., headless execution).
+   - `waits.properties`: holds explicit/fluent wait parameters (e.g., timeout, polling interval).
+   - `retry.properties`: configures flaky test retries.
+2. **Externalized Test Data**: Stored in `src/test/resources/usercredentials.properties` to isolate credentials and static test inputs from the test code.
+3. **`PropertyReader`**: A thread-safe utility class that recursively scans resources directories (`src/main/resources` and `src/test/resources`) for all `.properties` files, merges them, and makes them available globally.
+4. **TestNG SPI Execution Listener**: A `TestExecutionListener` is registered through Java SPI (`META-INF/services/org.testng.ITestNGListener`) to automatically invoke property loading at the start of TestNG execution.
+5. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com` or `-Dheadless=true`). System properties take absolute precedence over the properties files values.
 
 ### Step 6: Flaky Test Retry Mechanism
 To handle transient network latency, random timeouts, or minor server glitches, the framework integrates an automatic retry mechanism:
 
-1. **`Retry` Analyzer**: A retry controller that implements `IRetryAnalyzer`. It reads the configured limit (`retry.limit`) from `config.properties`, logs the attempt, and triggers a retry if the limit isn't exceeded.
+1. **`Retry` Analyzer**: A retry controller that implements `IRetryAnalyzer`. It reads the configured limit (`retry.limit`) from the configuration properties, logs the attempt, and triggers a retry if the limit isn't exceeded.
 2. **`AnnotationTransformer`**: Implements `IAnnotationTransformer` to programmatically assign the `Retry` analyzer to every test method at suite startup, eliminating the need to manually annotate individual test cases with `@Test(retryAnalyzer = Retry.class)`.
 3. **SPI Registration**: The `AnnotationTransformer` is registered using Java's Service Provider Interface (SPI) at `META-INF/services/org.testng.ITestNGListener`, ensuring it is loaded automatically by TestNG.
 
@@ -190,7 +199,7 @@ Instructs the `maven-surefire-plugin` to run using the `testng.xml` suite:
 Execute the test suite from the root directory using Maven:
 
 ```bash
-# Run tests with the default configuration in config.properties
+# Run tests with the default configuration
 mvn clean test
 
 # Run tests overriding the URL for a different environment (e.g., QA or Staging)

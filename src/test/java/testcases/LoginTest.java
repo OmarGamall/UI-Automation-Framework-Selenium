@@ -6,9 +6,15 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.HomePage;
 import pages.Login;
+import utils.PropertyReader;
 import utils.actions.AlertActions;
 
 public class LoginTest extends BaseTest {
+
+    private final String validUsername = PropertyReader.getProperty("login.valid.username");
+    private final String validPassword = PropertyReader.getProperty("login.valid.password");
+    private final String invalidPassword = PropertyReader.getProperty("login.invalid.password");
+    private final String nonexistentUsername = PropertyReader.getProperty("login.nonexistent.username");
 
     @Test(description = "Verify successful login with valid credentials")
     public void verifySuccessfulLogin()
@@ -16,11 +22,11 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         String welcomeMessage = new HomePage(driver)
                 .clickLoginTab()
-                .enterUsername("Omar Gamal")
-                .enterPassword("123")
+                .enterUsername(validUsername)
+                .enterPassword(validPassword)
                 .clickLogInButton()
                 .getWelcomeMessage();
-        Assert.assertEquals(welcomeMessage, "Welcome Omar Gamal");
+        Assert.assertEquals(welcomeMessage, "Welcome " + validUsername);
     }
 
     @Test(description = "Verify that logging in with an incorrect password displays a 'Wrong password.' alert")
@@ -29,8 +35,8 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         new HomePage(driver)
                 .clickLoginTab()
-                .enterUsername("Omar Gamal")
-                .enterPassword("wrongpassword")
+                .enterUsername(validUsername)
+                .enterPassword(invalidPassword)
                 .clickLogInButton();
 
         AlertActions alertActions = new AlertActions(driver);
@@ -44,8 +50,8 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         new HomePage(driver)
                 .clickLoginTab()
-                .enterUsername("nonexistentuser")
-                .enterPassword("wrongpassword")
+                .enterUsername(nonexistentUsername)
+                .enterPassword(invalidPassword)
                 .clickLogInButton();
 
         AlertActions alertActions = new AlertActions(driver);
@@ -74,8 +80,8 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         HomePage homePage = new HomePage(driver)
                 .clickLoginTab()
-                .enterUsername("Omar Gamal")
-                .enterPassword("123")
+                .enterUsername(validUsername)
+                .enterPassword(validPassword)
                 .clickCloseButton();
         
         Assert.assertTrue(homePage.isLoginButtonDisplayed(), "Login button should be displayed as user is guest");
@@ -86,12 +92,12 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         HomePage homePage = new HomePage(driver)
                 .clickLoginTab()
-                .enterUsername("Omar Gamal")
-                .enterPassword("123")
+                .enterUsername(validUsername)
+                .enterPassword(validPassword)
                 .clickLogInButton();
 
         // Check login was successful first
-        Assert.assertEquals(homePage.getWelcomeMessage(), "Welcome Omar Gamal");
+        Assert.assertEquals(homePage.getWelcomeMessage(), "Welcome " + validUsername);
         
         // Log out
         homePage.clickLogout();
