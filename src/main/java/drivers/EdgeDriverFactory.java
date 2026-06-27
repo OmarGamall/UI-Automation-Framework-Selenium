@@ -4,6 +4,7 @@ import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
+import utils.PropertyReader;
 
 public class EdgeDriverFactory extends AbstractDriver {
     @Override
@@ -12,6 +13,11 @@ public class EdgeDriverFactory extends AbstractDriver {
         options.addArguments("--disable-notifications");
         options.addArguments("--start-maximized");
         options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+
+        boolean headless = Boolean.parseBoolean(PropertyReader.getProperty("headless", "false"));
+        if (headless) {
+            options.addArguments("--headless=new");
+        }
         return options;
     }
 

@@ -14,11 +14,13 @@ public class WaitManager {
     }
 
     public FluentWait<WebDriver> fluentWait() {
-        return new FluentWait<>(driver)
-                .withTimeout(Duration.ofSeconds(10)) //wait for 10 seconds
-                .pollingEvery(Duration.ofMillis(500))
-                .ignoreAll(getExceptions());
+        int timeoutSeconds = Integer.parseInt(PropertyReader.getProperty("timeout.seconds", "10"));
+        long pollingMs = Long.parseLong(PropertyReader.getProperty("polling.ms", "500"));
 
+        return new FluentWait<>(driver)
+                .withTimeout(Duration.ofSeconds(timeoutSeconds))
+                .pollingEvery(Duration.ofMillis(pollingMs))
+                .ignoreAll(getExceptions());
     }
 
     // Define the exceptions to be ignored

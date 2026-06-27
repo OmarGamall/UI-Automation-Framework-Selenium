@@ -40,19 +40,25 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │   │   ├── Login.java                # Login page elements and actions
 │   │   │   │   └── SignUp.java               # Sign up page elements and actions
 │   │   │   └── utils
-│   │   │       ├── ConfigReader.java         # Thread-safe environment properties configuration reader
-│   │   │       ├── WaitManager.java          # Configurable non-static FluentWait setup
+│   │   │       ├── PropertyReader.java       # Thread-safe properties configuration reader (loads all properties)
+│   │   │       ├── WaitManager.java          # Configurable FluentWait setup (configured via properties)
 │   │   │       └── actions
 │   │   │           ├── AlertActions.java     # Wrapper actions for browser alerts
 │   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   │   └── resources
-│   │       └── config.properties             # Target URL configuration property file
+│   │       └── config.properties             # Default target URL and framework configurations
 │   └── test
-│       └── java
-│           └── testcases
-│               ├── BaseTest.java             # Centralized setup & teardown for tests
-│               ├── LoginTest.java            # Thread-safe login test cases
-│               └── SignUpTest.java           # Thread-safe signup test cases
+│       ├── java
+│       │   ├── listeners
+│       │   │   └── TestExecutionListener.java # Automatically loads properties on TestNG execution start
+│       │   └── testcases
+│       │       ├── BaseTest.java             # Centralized setup & teardown for tests
+│       │       ├── LoginTest.java            # Thread-safe login test cases
+│       │       └── SignUpTest.java           # Thread-safe signup test cases
+│       └── resources
+│           └── META-INF
+│               └── services
+│                   └── org.testng.ITestNGListener # SPI registration for TestExecutionListener
 ├── pom.xml                                   # Maven dependencies and plugin builds
 ├── testng.xml                                # Suite configuration for parallel execution
 └── README.md
@@ -83,7 +89,7 @@ To support parallel test execution without browser state collision, driver creat
 ### Step 2: Actions Layer & Dynamic Synchronization
 UI test failures are commonly caused by dynamic page loading or elements not being ready. We solve this at the action level through an atomic synchronization strategy:
 
-1. **`WaitManager`**: A helper class initializing a ThreadLocal-compatible `FluentWait<WebDriver>` instance. It is pre-configured with a 10-second timeout, 500ms polling intervals, and a preset list of ignored exceptions to support native Selenium actions.
+1. **`WaitManager`**: A helper class initializing a ThreadLocal-compatible `FluentWait<WebDriver>` instance. It dynamically reads the timeout (`timeout.seconds`) and polling interval (`polling.ms`) from the configuration properties, fallback-defaulting to 10s and 500ms respectively.
 2. **`ElementActions`**: Enforces a strict interaction protocol to maximize execution stability:
    - **Scroll First**: Automatically scrolls to the target element using W3C actions API (`Actions.scrollToElement(element).perform()`) before any interaction.
    - **Atomic Lambda Wait & Retry**: Wraps locating, scrolling, and interacting in a single try-catch lambda expression passed to `FluentWait.until(...)`. If *any* exception occurs during locating or interacting (e.g., stale elements, click interception), the lambda returns `false` or `null` to prompt `FluentWait` to poll and retry the entire sequence again.
@@ -106,7 +112,7 @@ Pages (like `Login` and `HomePage`) encapsulate locators (`By`) and business act
 Tests are designed to be isolated, parameterizable, and highly readable:
 
 1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
-   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `ConfigReader.getProperty("url")`, and launches the browser to navigate to it.
+   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `PropertyReader.getProperty("url")`, and launches the browser to navigate to it.
    - `tearDown()`: Quits the active driver and frees up the `ThreadLocal` registry using `WebDriverFactory.unload()`.
 2. **Concrete Test Classes (`LoginTest` / `SignUpTest`)**:
    - Inherit from `BaseTest` to automatically receive clean, thread-safe test environment lifecycles.
@@ -126,9 +132,10 @@ Tests are designed to be isolated, parameterizable, and highly readable:
 ### Step 5: Configuration Management & Scalability
 To support scaling up execution across multiple test environments (such as Dev, QA, Staging, and Production) without modifying any code, we externalize settings:
 
-1. **`config.properties`**: A centralized properties file in the resources folder containing default key-value pairs (e.g. `url=https://www.demoblaze.com/`).
-2. **`ConfigReader`**: A thread-safe utility class that loads configurations once in a static initialization block.
-3. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com`). System properties take absolute precedence over the properties file values.
+1. **`config.properties`**: A centralized properties file in the resources folder containing default key-value pairs (e.g. `url`, `timeout.seconds`, `polling.ms`, `headless`).
+2. **`PropertyReader`**: A thread-safe utility class that recursively scans resources directories (`src/main/resources` and `src/test/resources`) for all `.properties` files, merges them, and makes them available globally.
+3. **TestNG SPI Execution Listener**: A `TestExecutionListener` is registered through Java SPI (`META-INF/services/org.testng.ITestNGListener`) to automatically invoke property loading at the start of TestNG execution.
+4. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com` or `-Dheadless=true`). System properties take absolute precedence over the properties files values.
 
 ---
 
@@ -174,9 +181,12 @@ Instructs the `maven-surefire-plugin` to run using the `testng.xml` suite:
 Execute the test suite from the root directory using Maven:
 
 ```bash
-# Run tests with the default URL configured in config.properties
+# Run tests with the default configuration in config.properties
 mvn clean test
 
 # Run tests overriding the URL for a different environment (e.g., QA or Staging)
 mvn clean test -Durl=https://staging.demoblaze.com/
+
+# Run tests in headless mode
+mvn clean test -Dheadless=true
 ```
