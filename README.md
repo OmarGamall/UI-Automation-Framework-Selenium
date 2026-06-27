@@ -40,6 +40,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │   │   ├── Login.java                # Login page elements and actions
 │   │   │   │   └── SignUp.java               # Sign up page elements and actions
 │   │   │   └── utils
+│   │   │       ├── JsonReader.java           # Thread-safe JSON reader caching parsed DocumentContexts (JsonPath support)
 │   │   │       ├── PropertyReader.java       # Thread-safe properties configuration reader (loads all properties)
 │   │   │       ├── WaitManager.java          # Configurable FluentWait setup (configured via properties)
 │   │   │       └── actions
@@ -58,12 +59,15 @@ The framework is structured into distinct modular layers designed for high relia
 │       │   │   └── TestExecutionListener.java # Automatically loads properties on TestNG execution start
 │       │   └── testcases
 │       │       ├── BaseTest.java             # Centralized setup & teardown for tests
+│       │       ├── JsonReaderTest.java       # Test suite verifying JsonReader parsing, caching, and exceptions
 │       │       ├── LoginTest.java            # Thread-safe login test cases (uses usercredentials.properties)
 │       │       └── SignUpTest.java           # Thread-safe signup test cases
 │       └── resources
 │           ├── META-INF
 │           │   └── services
 │           │       └── org.testng.ITestNGListener # SPI registration for TestExecutionListener and AnnotationTransformer
+│           ├── test-data
+│           │   └── user-data.json            # Sample JSON test data file
 │           └── usercredentials.properties     # Externalized user login test data
 ├── pom.xml                                   # Maven dependencies and plugin builds
 ├── testng.xml                                # Suite configuration for parallel execution
@@ -154,6 +158,15 @@ To handle transient network latency, random timeouts, or minor server glitches, 
 1. **`Retry` Analyzer**: A retry controller that implements `IRetryAnalyzer`. It reads the configured limit (`retry.limit`) from the configuration properties, logs the attempt, and triggers a retry if the limit isn't exceeded.
 2. **`AnnotationTransformer`**: Implements `IAnnotationTransformer` to programmatically assign the `Retry` analyzer to every test method at suite startup, eliminating the need to manually annotate individual test cases with `@Test(retryAnalyzer = Retry.class)`.
 3. **SPI Registration**: The `AnnotationTransformer` is registered using Java's Service Provider Interface (SPI) at `META-INF/services/org.testng.ITestNGListener`, ensuring it is loaded automatically by TestNG.
+
+### Step 7: JSON Test Data Management & Querying
+To enable data-driven testing and keep test code clean of hardcoded values, the framework includes a modern, thread-safe JSON utility:
+
+1. **`JsonReader`**: A thread-safe reader backed by a global cache. It loads and parses JSON files into Jayway `DocumentContext` instances.
+2. **Performance Optimization (Parsing Cache)**: Rather than re-parsing files on every query, `JsonReader` caches parsed representations in a `ConcurrentHashMap` so that file reading and parsing occur exactly once per file across all parallel threads.
+3. **Classpath & Filesystem Resolution**: Searches the classpath first (for CI/CD and JAR packaging portability) and falls back to filesystem directory lookups using project-root paths.
+4. **Resilient Querying**: Utilizes Jayway `JsonPath` configured with the Jackson Provider. Missing leaf nodes return `null` instead of throwing errors (via `SUPPRESS_EXCEPTIONS`), while syntax errors or missing files fail fast with a custom `TestDataException`.
+5. **Generic Return Types**: The query method uses generic types (`public <T> T getJsonData(String jsonPath)`) to automatically cast values (e.g. strings, lists, doubles, booleans) without requiring manual casting in test cases.
 
 ---
 
