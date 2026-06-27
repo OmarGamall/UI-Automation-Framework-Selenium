@@ -50,6 +50,8 @@ The framework is structured into distinct modular layers designed for high relia
 │   └── test
 │       ├── java
 │       │   ├── listeners
+│       │   │   ├── AnnotationTransformer.java # SPI listener to programmatically bind Retry analyzer to tests
+│       │   │   ├── Retry.java                 # Controls flaky test retries based on configured limit
 │       │   │   └── TestExecutionListener.java # Automatically loads properties on TestNG execution start
 │       │   └── testcases
 │       │       ├── BaseTest.java             # Centralized setup & teardown for tests
@@ -58,7 +60,7 @@ The framework is structured into distinct modular layers designed for high relia
 │       └── resources
 │           └── META-INF
 │               └── services
-│                   └── org.testng.ITestNGListener # SPI registration for TestExecutionListener
+│                   └── org.testng.ITestNGListener # SPI registration for TestExecutionListener and AnnotationTransformer
 ├── pom.xml                                   # Maven dependencies and plugin builds
 ├── testng.xml                                # Suite configuration for parallel execution
 └── README.md
@@ -136,6 +138,13 @@ To support scaling up execution across multiple test environments (such as Dev, 
 2. **`PropertyReader`**: A thread-safe utility class that recursively scans resources directories (`src/main/resources` and `src/test/resources`) for all `.properties` files, merges them, and makes them available globally.
 3. **TestNG SPI Execution Listener**: A `TestExecutionListener` is registered through Java SPI (`META-INF/services/org.testng.ITestNGListener`) to automatically invoke property loading at the start of TestNG execution.
 4. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-Durl=https://staging.example.com` or `-Dheadless=true`). System properties take absolute precedence over the properties files values.
+
+### Step 6: Flaky Test Retry Mechanism
+To handle transient network latency, random timeouts, or minor server glitches, the framework integrates an automatic retry mechanism:
+
+1. **`Retry` Analyzer**: A retry controller that implements `IRetryAnalyzer`. It reads the configured limit (`retry.limit`) from `config.properties`, logs the attempt, and triggers a retry if the limit isn't exceeded.
+2. **`AnnotationTransformer`**: Implements `IAnnotationTransformer` to programmatically assign the `Retry` analyzer to every test method at suite startup, eliminating the need to manually annotate individual test cases with `@Test(retryAnalyzer = Retry.class)`.
+3. **SPI Registration**: The `AnnotationTransformer` is registered using Java's Service Provider Interface (SPI) at `META-INF/services/org.testng.ITestNGListener`, ensuring it is loaded automatically by TestNG.
 
 ---
 
