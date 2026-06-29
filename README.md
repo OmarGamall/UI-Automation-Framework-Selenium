@@ -40,6 +40,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │   │   ├── Login.java                # Login page elements and actions
 │   │   │   │   └── SignUp.java               # Sign up page elements and actions
 │   │   │   └── utils
+│   │   │       ├── AllureUtilities.java      # Cleans old Allure results before execution starts
 │   │   │       ├── JsonReader.java           # Thread-safe JSON reader caching parsed DocumentContexts (JsonPath support)
 │   │   │       ├── PropertyReader.java       # Thread-safe properties configuration reader (loads all properties)
 │   │   │       ├── WaitManager.java          # Configurable FluentWait setup (configured via properties)
@@ -47,6 +48,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │           ├── AlertActions.java     # Wrapper actions for browser alerts
 │   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   │   └── resources
+│   │       ├── allure.properties             # Allure results directory configuration
 │   │       ├── browser.properties            # Browser headless option configuration
 │   │       ├── env.properties                # Target application URL configuration
 │   │       ├── retry.properties              # Flaky test retry mechanism configuration
@@ -220,4 +222,26 @@ mvn clean test -Durl=https://staging.demoblaze.com/
 
 # Run tests in headless mode
 mvn clean test -Dheadless=true
+```
+
+---
+
+## Reporting (Allure)
+
+The framework is integrated with **Allure Reporting**. 
+
+### 1. Generating & Serving the Report
+To run the test suite and automatically serve the interactive Allure report in your default browser, execute:
+```bash
+# Run tests to generate allure results under target/allure-results
+mvn clean test
+
+# Serve and open the interactive Allure report
+mvn allure:serve
+```
+
+### 2. Generating Static Report Files
+To compile the static HTML report under `target/allure-report`, execute:
+```bash
+mvn allure:report
 ```

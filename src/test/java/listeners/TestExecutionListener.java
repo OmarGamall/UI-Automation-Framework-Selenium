@@ -9,6 +9,7 @@ public class TestExecutionListener implements IExecutionListener {
     public void onExecutionStart() {
         System.out.println("[TestExecutionListener] TestNG Execution starting. Loading all framework properties...");
         PropertyReader.loadAllProperties();
+        utils.AllureUtilities.cleanAllureResults();
     }
 
     @Override
