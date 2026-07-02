@@ -1,3 +1,3 @@
-com.blazedemo.listeners.TestExecutionListener
-com.blazedemo.listeners.AnnotationTransformer
-com.blazedemo.listeners.TestLogListener
+com.automationexercise.listeners.TestExecutionListener
+com.automationexercise.listeners.AnnotationTransformer
+com.automationexercise.listeners.TestLogListener

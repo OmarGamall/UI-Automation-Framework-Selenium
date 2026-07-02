@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>TAF-Selenium-Comrec</artifactId>
+    <groupId>com.example</groupId>
+    <artifactId>TAF-Selenium</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -82,7 +82,7 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
 
         <!-- ============================================== -->
@@ -92,7 +92,6 @@
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
             <version>${allure.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- ============================================== -->
