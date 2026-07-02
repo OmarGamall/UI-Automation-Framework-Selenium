@@ -1,10 +1,10 @@
-package drivers;
+package com.blazedemo.drivers;
 
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import utils.PropertyReader;
+import com.blazedemo.utils.PropertyReader;
 
 public class ChromeDriverFactory extends AbstractDriver {
     @Override

@@ -1,6 +1,8 @@
-package testcases;
+package com.blazedemo.testcases;
 
-import drivers.WebDriverFactory;
+import com.blazedemo.drivers.WebDriverFactory;
+import com.blazedemo.utils.PropertyReader;
+import com.blazedemo.utils.LogsManager;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -13,15 +15,15 @@ public class BaseTest {
     @Parameters("browser")
     public void setUp(@Optional("chrome") String browser)
     {
-        System.out.println("Setting up the test environment for browser: " + browser);
-        String url = utils.PropertyReader.getProperty("url", "https://www.demoblaze.com/");
+        LogsManager.info("Setting up the test environment for browser: {}", browser);
+        String url = PropertyReader.getProperty("url", "https://www.demoblaze.com/");
         WebDriverFactory.create(browser).get(url);
     }
 
     @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
-        System.out.println("Tearing down the test environment");
+        LogsManager.info("Tearing down the test environment");
         WebDriver driver = WebDriverFactory.getDriver();
         if (driver != null) {
             driver.quit();

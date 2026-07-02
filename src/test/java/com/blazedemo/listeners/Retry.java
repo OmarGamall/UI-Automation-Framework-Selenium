@@ -1,8 +1,9 @@
-package listeners;
+package com.blazedemo.listeners;
 
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
-import utils.PropertyReader;
+import com.blazedemo.utils.PropertyReader;
+import com.blazedemo.utils.LogsManager;
 
 public class Retry implements IRetryAnalyzer {
     private int count = 0;
@@ -16,7 +17,7 @@ public class Retry implements IRetryAnalyzer {
                 limit = Integer.parseInt(limitProp.trim());
             }
         } catch (NumberFormatException e) {
-            System.err.println("Invalid retry.limit configuration. Defaulting to 0.");
+            LogsManager.error("Invalid retry.limit configuration. Defaulting to 0.", e);
         }
         MAX_LIMIT = limit;
     }
@@ -26,7 +27,7 @@ public class Retry implements IRetryAnalyzer {
         if (!result.isSuccess()) {
             if (count < MAX_LIMIT) {
                 count++;
-                System.out.println("Retrying test " + result.getName() + " for the " + count + " time(s) out of " + MAX_LIMIT);
+                LogsManager.warn("Retrying test {} for the {} time(s) out of {}", result.getName(), count, MAX_LIMIT);
                 return true;
             }
         }

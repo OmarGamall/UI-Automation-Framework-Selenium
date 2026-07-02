@@ -1,9 +1,9 @@
-package testcases;
+package com.blazedemo.testcases;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import utils.JsonReader;
-import utils.JsonReader.TestDataException;
+import com.blazedemo.utils.JsonReader;
+import com.blazedemo.utils.JsonReader.TestDataException;
 
 import java.util.List;
 

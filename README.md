@@ -4,6 +4,30 @@ This repository implements a robust, thread-safe, and parallel-ready Selenium UI
 
 ---
 
+## Table of Contents
+
+- [Architecture Overview](#architecture-overview)
+- [Tech Stack](#tech-stack)
+- [Directory Structure](#directory-structure)
+- [Step-by-Step Architecture Components](#step-by-step-architecture-components)
+  - [Step 1: Driver Factory and Thread Safety](#step-1-driver-factory-and-thread-safety)
+  - [Step 2: Actions Layer & Dynamic Synchronization](#step-2-actions-layer-dynamic-synchronization)
+  - [Step 3: Fluent Page Object Model (POM)](#step-3-fluent-page-object-model-pom)
+  - [Step 4: Test Cases & Execution Lifecycle](#step-4-test-cases-execution-lifecycle)
+  - [Step 5: Configuration Management & Scalability](#step-5-configuration-management-scalability)
+  - [Step 6: Flaky Test Retry Mechanism](#step-6-flaky-test-retry-mechanism)
+  - [Step 7: JSON Test Data Management & Querying](#step-7-json-test-data-management-querying)
+  - [Step 8: Thread-Safe Logging and Diagnostics](#step-8-thread-safe-logging-and-diagnostics)
+- [Parallel Execution Configuration](#parallel-execution-configuration)
+  - [1. testng.xml (Project Root)](#1-testngxml-project-root)
+  - [2. pom.xml configuration](#2-pomxml-configuration)
+- [How to Run](#how-to-run)
+- [Reporting (Allure)](#reporting-allure)
+  - [Option A: Using the Allure Maven Plugin (Recommended)](#option-a-using-the-allure-maven-plugin-recommended)
+  - [Option B: Using the Local Allure CLI Tool](#option-b-using-the-local-allure-cli-tool)
+
+---
+
 ## Architecture Overview
 
 The framework is structured into distinct modular layers designed for high reliability, zero timing synchronization issues, and ease of scaling:
@@ -20,6 +44,24 @@ The framework is structured into distinct modular layers designed for high relia
        ▼
 [ Driver Factory ] (AbstractDriver + WebDriverFactory + ThreadLocal)
 ```
+
+---
+
+## Tech Stack
+
+The framework leverages a modern, stable automation ecosystem:
+- **Core Platform**: Java 21 (JDK 21)
+- **Testing Engine**: TestNG (v7.12.0)
+- **Web Automation**: Selenium Java (v4.44.0)
+- **Build Tool**: Apache Maven
+- **Logging Interface**: SLF4J (v2.0.13)
+- **Logging Backend**: Apache Log4j2 (v2.23.1)
+- **Reporting Engine**: Allure Reports (v2.24.0)
+- **Libraries**:
+  - **Lombok**: Boilerplate reduction (annotations)
+  - **Jackson Databind**: JSON serialization/deserialization
+  - **Jayway JsonPath**: Querying JSON files dynamically
+  - **Apache Commons IO**: Utility file operations
 
 ---
 
@@ -42,6 +84,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │   │   └── utils
 │   │   │       ├── AllureUtilities.java      # Cleans old Allure results before execution starts
 │   │   │       ├── JsonReader.java           # Thread-safe JSON reader caching parsed DocumentContexts (JsonPath support)
+│   │   │       ├── LogsManager.java          # Centralized thread-safe logging facade dynamically resolving caller class
 │   │   │       ├── PropertyReader.java       # Thread-safe properties configuration reader (loads all properties)
 │   │   │       ├── WaitManager.java          # Configurable FluentWait setup (configured via properties)
 │   │   │       └── actions
@@ -51,6 +94,7 @@ The framework is structured into distinct modular layers designed for high relia
 │   │       ├── allure.properties             # Allure results directory configuration
 │   │       ├── browser.properties            # Browser headless option configuration
 │   │       ├── env.properties                # Target application URL configuration
+│   │       ├── log4j2.xml                    # Log4j2 configuration defining console and file appenders
 │   │       ├── retry.properties              # Flaky test retry mechanism configuration
 │   │       └── waits.properties              # Explicit / Implicit Wait timing and polling configuration
 │   └── test
@@ -58,7 +102,8 @@ The framework is structured into distinct modular layers designed for high relia
 │       │   ├── listeners
 │       │   │   ├── AnnotationTransformer.java # SPI listener to programmatically bind Retry analyzer to tests
 │       │   │   ├── Retry.java                 # Controls flaky test retries based on configured limit
-│       │   │   └── TestExecutionListener.java # Automatically loads properties on TestNG execution start
+│       │   │   ├── TestExecutionListener.java # Automatically loads properties on TestNG execution start
+│       │   │   └── TestLogListener.java       # Thread-safe listener setting/clearing MDC testName for logs
 │       │   └── testcases
 │       │       ├── BaseTest.java             # Centralized setup & teardown for tests
 │       │       ├── JsonReaderTest.java       # Test suite verifying JsonReader parsing, caching, and exceptions
@@ -170,6 +215,16 @@ To enable data-driven testing and keep test code clean of hardcoded values, the 
 4. **Resilient Querying**: Utilizes Jayway `JsonPath` configured with the Jackson Provider. Missing leaf nodes return `null` instead of throwing errors (via `SUPPRESS_EXCEPTIONS`), while syntax errors or missing files fail fast with a custom `TestDataException`.
 5. **Generic Return Types**: The query method uses generic types (`public <T> T getJsonData(String jsonPath)`) to automatically cast values (e.g. strings, lists, doubles, booleans) without requiring manual casting in test cases.
 
+### Step 8: Thread-Safe Logging and Diagnostics
+To facilitate debugging, tracing, and monitoring of test executions (especially during parallel execution), the framework features a thread-safe logging architecture:
+
+1. **SLF4J & Log4j2 Backend**: Standardized on SLF4J as the logging API and Log4j2 as the implementation engine.
+2. **`LogsManager`**: A helper facade class that retrieves the active logger class dynamically from the execution call stack (`Thread.currentThread().getStackTrace()`), keeping files clean of static logger declarations.
+3. **MDC (Mapped Diagnostic Context) Test Tracking**: Configured to capture the running test name dynamically. The custom `TestLogListener` (registered via TestNG SPI) automatically registers the test name into SLF4J MDC when a test begins and cleans it up when it finishes.
+4. **Appenders & Outputs**:
+   - **Console Appender**: Logs events to stdout with ANSI color-coding for log levels (`INFO` in green, `WARN` in yellow, `ERROR`/`FATAL` in red, `DEBUG` in blue).
+   - **File Appender**: Writes formatted execution records to `target/logs/execution.log` (overwritten on each suite run).
+
 ---
 
 ## Parallel Execution Configuration
@@ -228,20 +283,31 @@ mvn clean test -Dheadless=true
 
 ## Reporting (Allure)
 
-The framework is integrated with **Allure Reporting**. 
+Allure generates raw test execution results under the `target/allure-results` directory (configured via `src/main/resources/allure.properties` so it applies to both Maven CLI and IDE test runs).
 
-### 1. Generating & Serving the Report
-To run the test suite and automatically serve the interactive Allure report in your default browser, execute:
-```bash
-# Run tests to generate allure results under target/allure-results
-mvn clean test
+To prevent old test executions from accumulating in subsequent runs (especially when running directly in IDEs without a Maven `clean` command), the framework features `AllureUtilities.cleanAllureResults()` which is executed automatically at suite startup by the global TestNG listener to programmatically clear out the directory.
 
-# Serve and open the interactive Allure report
-mvn allure:serve
-```
+### Option A: Using the Allure Maven Plugin (Recommended)
+You do not need to install the Allure CLI locally. Run the following Maven commands:
 
-### 2. Generating Static Report Files
-To compile the static HTML report under `target/allure-report`, execute:
-```bash
-mvn allure:report
-```
+* **To build and serve the report dynamically in your default browser:**
+  ```bash
+  mvn allure:serve
+  ```
+* **To build a static, self-contained HTML report in the `target/allure-report` folder:**
+  ```bash
+  mvn allure:report
+  ```
+
+### Option B: Using the Local Allure CLI Tool
+If you have the Allure Command Line Tool installed locally, you can run:
+
+* **To serve the report:**
+  ```bash
+  allure serve target/allure-results
+  ```
+* **To generate a static report inside `target/allure-report`:**
+  ```bash
+  allure generate target/allure-results --clean -o target/allure-report
+  allure open target/allure-report
+  ```

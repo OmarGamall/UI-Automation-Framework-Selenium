@@ -1,4 +1,4 @@
-package drivers;
+package com.blazedemo.drivers;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.AbstractDriverOptions;

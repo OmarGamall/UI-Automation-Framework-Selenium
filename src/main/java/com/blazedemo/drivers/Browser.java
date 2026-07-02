@@ -1,4 +1,4 @@
-package drivers;
+package com.blazedemo.drivers;
 
 public enum Browser {
     CHROME {

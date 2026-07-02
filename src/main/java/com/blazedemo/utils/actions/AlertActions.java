@@ -1,9 +1,10 @@
-package utils.actions;
+package com.blazedemo.utils.actions;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import utils.WaitManager;
+import com.blazedemo.utils.WaitManager;
+import com.blazedemo.utils.LogsManager;
 
 public class AlertActions {
     private final WebDriver driver;
@@ -18,19 +19,38 @@ public class AlertActions {
         return waitManager.fluentWait().until(ExpectedConditions.alertIsPresent());
     }
 
+    /**
+     * get the text of the alert
+     * @return text in the alert
+     */
     public String getAlertText() {
-        return waitForAlert().getText();
+        String text = waitForAlert().getText();
+        LogsManager.info("Retrieved text '{}' from alert", text);
+        return text;
     }
 
+    /**
+     * accept the alert
+     */
     public void acceptAlert() {
+        LogsManager.info("Accepting alert");
         waitForAlert().accept();
     }
 
+    /**
+     * dismiss the alert
+     */
     public void dismissAlert() {
+        LogsManager.info("Dismissing alert");
         waitForAlert().dismiss();
     }
 
+    /**
+     * send keys to the alert
+     * @param text the text to send
+     */
     public void sendKeysToAlert(String text) {
+        LogsManager.info("Typing '{}' into alert", text);
         waitForAlert().sendKeys(text);
     }
 }

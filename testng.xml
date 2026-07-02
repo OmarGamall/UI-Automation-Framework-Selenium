@@ -3,9 +3,8 @@
 <suite name="TestSuite" parallel="classes" thread-count="2">
     <test name="ParallelTests">
         <parameter name="browser" value="chrome"/>
-        <classes>
-            <class name="testcases.LoginTest"/>
-            <class name="testcases.SignUpTest"/>
-        </classes>
+        <packages>
+            <package name="com.blazedemo.testcases"/>
+        </packages>
     </test>
 </suite>

@@ -1,13 +1,12 @@
-package testcases;
+package com.blazedemo.testcases;
 
-import drivers.WebDriverFactory;
+import com.blazedemo.drivers.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import pages.HomePage;
-import pages.Login;
-import utils.PropertyReader;
-import utils.actions.AlertActions;
+import com.blazedemo.pages.HomePage;
+import com.blazedemo.utils.PropertyReader;
+import com.blazedemo.utils.actions.AlertActions;
 
 public class LoginTest extends BaseTest {
 

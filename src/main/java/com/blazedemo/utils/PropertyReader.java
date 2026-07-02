@@ -1,4 +1,4 @@
-package utils;
+package com.blazedemo.utils;
 
 import org.apache.commons.io.FileUtils;
 import java.io.File;
@@ -39,7 +39,7 @@ public class PropertyReader {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Critical failure scanning resources directory: " + e.getMessage());
+            LogsManager.error("Critical failure scanning resources directory", e);
         }
     }
 
@@ -54,12 +54,13 @@ public class PropertyReader {
             for (File file : propertiesFiles) {
                 try (InputStream is = FileUtils.openInputStream(file)) {
                     localProps.load(is);
+                    LogsManager.info("Loaded properties from file: {}", file.getName());
                 } catch (Exception e) {
-                    System.err.println("Error loading individual file: " + file.getName() + " - " + e.getMessage());
+                    LogsManager.error("Error loading individual file: " + file.getName(), e);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error reading directory: " + dirPath + " - " + e.getMessage());
+            LogsManager.error("Error reading directory: " + dirPath, e);
         }
     }
 

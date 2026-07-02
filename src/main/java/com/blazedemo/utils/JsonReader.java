@@ -1,4 +1,4 @@
-package utils;
+package com.blazedemo.utils;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;

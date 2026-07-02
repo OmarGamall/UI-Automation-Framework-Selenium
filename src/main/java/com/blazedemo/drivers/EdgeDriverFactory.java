@@ -1,10 +1,10 @@
-package drivers;
+package com.blazedemo.drivers;
 
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
-import utils.PropertyReader;
+import com.blazedemo.utils.PropertyReader;
 
 public class EdgeDriverFactory extends AbstractDriver {
     @Override

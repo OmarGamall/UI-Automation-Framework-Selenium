@@ -1,7 +1,8 @@
-package listeners;
+package com.blazedemo.listeners;
 
+import com.blazedemo.utils.AllureUtilities;
 import org.testng.IExecutionListener;
-import utils.PropertyReader;
+import com.blazedemo.utils.PropertyReader;
 
 public class TestExecutionListener implements IExecutionListener {
 
@@ -9,11 +10,12 @@ public class TestExecutionListener implements IExecutionListener {
     public void onExecutionStart() {
         System.out.println("[TestExecutionListener] TestNG Execution starting. Loading all framework properties...");
         PropertyReader.loadAllProperties();
-        utils.AllureUtilities.cleanAllureResults();
+        AllureUtilities.cleanAllureResults();
     }
 
     @Override
     public void onExecutionFinish() {
         System.out.println("[TestExecutionListener] TestNG Execution finished.");
+        AllureUtilities.writeEnvironmentProperties();
     }
 }
