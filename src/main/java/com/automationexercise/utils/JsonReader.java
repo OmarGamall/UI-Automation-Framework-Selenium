@@ -28,7 +28,7 @@ public class JsonReader {
     // Pre-configured JsonPath using Jackson; missing paths return null instead of throwing exceptions
     private static final Configuration JSON_PATH_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
-            .mappingProvider(new JacksonMappingProvider())
+            .mappingProvider(new JacksonMappingProvider()) // Registers Jackson as the mapper!
             .options(Option.DEFAULT_PATH_LEAF_TO_NULL, Option.SUPPRESS_EXCEPTIONS)
             .build();
 
@@ -85,7 +85,6 @@ public class JsonReader {
      * @param <T>      expected return type
      * @return the value at the path, or null if the path does not exist in the document
      */
-    @SuppressWarnings("unchecked")
     public <T> T getJsonData(String jsonPath) {
         try {
             return documentContext.read(jsonPath);

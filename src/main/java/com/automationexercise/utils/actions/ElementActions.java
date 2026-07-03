@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import com.automationexercise.utils.WaitManager;
 import com.automationexercise.utils.LogsManager;
+import org.openqa.selenium.support.ui.Select;
 
 public class ElementActions {
     private final WebDriver driver;
@@ -102,5 +103,51 @@ public class ElementActions {
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver)
                 .executeScript("arguments[0].scrollIntoView({block: 'center', behaviour: 'auto', inline: 'center'});", element);
+    }
+
+    public void selectByVisibleText(By locator, String text) {
+        LogsManager.info("Selecting option '{}' from drop-down [{}]", text, locator);
+        waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                new Actions(d).scrollToElement(element).perform();
+                Select select = new Select(element);
+                select.selectByVisibleText(text);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    public void selectByValue(By locator, String value) {
+        LogsManager.info("Selecting option with value '{}' from drop-down [{}]", value, locator);
+        waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                new Actions(d).scrollToElement(element).perform();
+                Select select = new Select(element);
+                select.selectByValue(value);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    public void setCheckboxState(By locator, boolean select) {
+        LogsManager.info("Setting checkbox [{}] to: {}", locator, select);
+        waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                new Actions(d).scrollToElement(element).perform();
+                if (element.isSelected() != select) {
+                    element.click();
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
     }
 }

@@ -1,5 +1,7 @@
 package com.automationexercise.pages;
 
+import com.automationexercise.models.User;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -7,6 +9,34 @@ public class SignUp extends BasePage {
     
     // Expected URL
     public static final String EXPECTED_URL = BASE_URL + "signup";
+
+    // ==========================================
+    // Locators
+    // ==========================================
+    // Account Information
+    private final By genderMrRadio = By.id("id_gender1");
+    private final By genderMrsRadio = By.id("id_gender2");
+    private final By nameInput = By.id("name");
+    private final By emailInput = By.id("email");
+    private final By passwordInput = By.id("password");
+    private final By daysSelect = By.id("days");
+    private final By monthsSelect = By.id("months");
+    private final By yearsSelect = By.id("years");
+    private final By newsletterCheckbox = By.id("newsletter");
+    private final By optionCheckbox = By.id("optin");
+
+    // Address Information
+    private final By firstNameInput = By.id("first_name");
+    private final By lastNameInput = By.id("last_name");
+    private final By companyInput = By.id("company");
+    private final By address1Input = By.id("address1");
+    private final By address2Input = By.id("address2");
+    private final By countrySelect = By.id("country");
+    private final By stateInput = By.id("state");
+    private final By cityInput = By.id("city");
+    private final By zipcodeInput = By.id("zipcode");
+    private final By mobileNumberInput = By.id("mobile_number");
+    private final By createAccountButton = By.cssSelector("button[data-qa='create-account']");
 
     // ==========================================
     // Constructor
@@ -22,33 +52,197 @@ public class SignUp extends BasePage {
     }
 
     // ==========================================
-    // Locators
-    // ==========================================
-    private final By usernameInput = By.id("sign-username");
-    private final By passwordInput = By.id("sign-password");
-    private final By signUpButton = By.xpath("//button[normalize-space()='Sign up']");
-    private final By closeButton = By.xpath("//div[@id='signInModal'] //button[normalize-space()='Close']");
-
-    // ==========================================
     // Page Actions
     // ==========================================
-    public SignUp enterUsername(String username) {
-        elementActions.sendKeys(usernameInput, username);
+    @Step("Select Title: Mr.")
+    public SignUp selectTitleMr() {
+        elementActions.click(genderMrRadio);
         return this;
     }
 
+    @Step("Select Title: Mrs.")
+    public SignUp selectTitleMrs() {
+        elementActions.click(genderMrsRadio);
+        return this;
+    }
+
+    @Step("Select Title by option: {title}")
+    public SignUp selectTitle(String title) {
+        if ("Mr".equalsIgnoreCase(title) || "Mr.".equalsIgnoreCase(title)) {
+            selectTitleMr();
+        } else if ("Mrs".equalsIgnoreCase(title) || "Mrs.".equalsIgnoreCase(title)) {
+            selectTitleMrs();
+        }
+        return this;
+    }
+
+    @Step("Enter Name: {name}")
+    public SignUp enterName(String name) {
+        elementActions.sendKeys(nameInput, name);
+        return this;
+    }
+
+    @Step("Get disabled Email value")
+    public String getEmail() {
+        return driver.findElement(emailInput).getAttribute("value");
+    }
+
+    @Step("Enter Password: {password}")
     public SignUp enterPassword(String password) {
         elementActions.sendKeys(passwordInput, password);
         return this;
     }
 
-    public HomePage clickSignUpButton() {
-        elementActions.click(signUpButton);
-        return new HomePage(driver);
+    @Step("Select Date of Birth Day: {day}")
+    public SignUp selectDay(String day) {
+        elementActions.selectByValue(daysSelect, day);
+        return this;
     }
 
-    public HomePage clickCloseButton() {
-        elementActions.click(closeButton);
-        return new HomePage(driver);
+    @Step("Select Date of Birth Month: {month}")
+    public SignUp selectMonth(String month) {
+        elementActions.selectByVisibleText(monthsSelect, month);
+        return this;
+    }
+
+    @Step("Select Date of Birth Year: {year}")
+    public SignUp selectYear(String year) {
+        elementActions.selectByValue(yearsSelect, year);
+        return this;
+    }
+
+    @Step("Set Newsletter Checkbox: {select}")
+    public SignUp setNewsletterCheckbox(boolean select) {
+        elementActions.setCheckboxState(newsletterCheckbox, select);
+        return this;
+    }
+
+    @Step("Set Special Offers Checkbox: {select}")
+    public SignUp setSpecialOffersCheckbox(boolean select) {
+        elementActions.setCheckboxState(optionCheckbox, select);
+        return this;
+    }
+
+    @Step("Enter First Name: {firstName}")
+    public SignUp enterFirstName(String firstName) {
+        elementActions.sendKeys(firstNameInput, firstName);
+        return this;
+    }
+
+    @Step("Enter Last Name: {lastName}")
+    public SignUp enterLastName(String lastName) {
+        elementActions.sendKeys(lastNameInput, lastName);
+        return this;
+    }
+
+    @Step("Enter Company: {company}")
+    public SignUp enterCompany(String company) {
+        elementActions.sendKeys(companyInput, company);
+        return this;
+    }
+
+    @Step("Enter Address 1: {address1}")
+    public SignUp enterAddress1(String address1) {
+        elementActions.sendKeys(address1Input, address1);
+        return this;
+    }
+
+    @Step("Enter Address 2: {address2}")
+    public SignUp enterAddress2(String address2) {
+        elementActions.sendKeys(address2Input, address2);
+        return this;
+    }
+
+    @Step("Select Country: {country}")
+    public SignUp selectCountry(String country) {
+        elementActions.selectByVisibleText(countrySelect, country);
+        return this;
+    }
+
+    @Step("Enter State: {state}")
+    public SignUp enterState(String state) {
+        elementActions.sendKeys(stateInput, state);
+        return this;
+    }
+
+    @Step("Enter City: {city}")
+    public SignUp enterCity(String city) {
+        elementActions.sendKeys(cityInput, city);
+        return this;
+    }
+
+    @Step("Enter Zipcode: {zipcode}")
+    public SignUp enterZipcode(String zipcode) {
+        elementActions.sendKeys(zipcodeInput, zipcode);
+        return this;
+    }
+
+    @Step("Enter Mobile Number: {mobileNumber}")
+    public SignUp enterMobileNumber(String mobileNumber) {
+        elementActions.sendKeys(mobileNumberInput, mobileNumber);
+        return this;
+    }
+
+    @Step("Click 'Create Account' button")
+    public AccountCreated clickCreateAccount() {
+        elementActions.click(createAccountButton);
+        return new AccountCreated(driver);
+    }
+
+    @Step("Fill complete registration form for user: {user}")
+    public SignUp fillRegistrationForm(User user) {
+        if (user.getTitle() != null) {
+            selectTitle(user.getTitle());
+        }
+        if (user.getUsername() != null) {
+            enterName(user.getUsername());
+        }
+        if (user.getPassword() != null) {
+            enterPassword(user.getPassword());
+        }
+        if (user.getBirthDay() != null) {
+            selectDay(user.getBirthDay());
+        }
+        if (user.getBirthMonth() != null) {
+            selectMonth(user.getBirthMonth());
+        }
+        if (user.getBirthYear() != null) {
+            selectYear(user.getBirthYear());
+        }
+        setNewsletterCheckbox(user.isNewsletter());
+        setSpecialOffersCheckbox(user.isOptin());
+
+        // Address Details
+        if (user.getFirstName() != null) {
+            enterFirstName(user.getFirstName());
+        }
+        if (user.getLastName() != null) {
+            enterLastName(user.getLastName());
+        }
+        if (user.getCompany() != null) {
+            enterCompany(user.getCompany());
+        }
+        if (user.getAddress1() != null) {
+            enterAddress1(user.getAddress1());
+        }
+        if (user.getAddress2() != null) {
+            enterAddress2(user.getAddress2());
+        }
+        if (user.getCountry() != null) {
+            selectCountry(user.getCountry());
+        }
+        if (user.getState() != null) {
+            enterState(user.getState());
+        }
+        if (user.getCity() != null) {
+            enterCity(user.getCity());
+        }
+        if (user.getZipcode() != null) {
+            enterZipcode(user.getZipcode());
+        }
+        if (user.getMobileNumber() != null) {
+            enterMobileNumber(user.getMobileNumber());
+        }
+        return this;
     }
 }
