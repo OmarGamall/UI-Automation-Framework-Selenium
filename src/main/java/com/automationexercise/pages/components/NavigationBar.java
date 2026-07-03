@@ -42,49 +42,49 @@ public class NavigationBar {
     // ==========================================
     // Page Actions
     // ==========================================
-    @Step("Click Home link")
-    public HomePage clickHome() {
+    @Step("Navigate to Home")
+    public HomePage navigateToHome() {
         elementActions.click(homeLink);
         return new HomePage(driver);
     }
 
-    @Step("Click Products link")
-    public Products clickProducts() {
+    @Step("Navigate to Products")
+    public Products navigateToProducts() {
         elementActions.click(productsLink);
         return new Products(driver);
     }
 
-    @Step("Click Cart link")
-    public Cart clickCart() {
+    @Step("Navigate to Cart")
+    public Cart navigateToCart() {
         elementActions.click(cartLink);
         return new Cart(driver);
     }
 
-    @Step("Click Signup / Login link")
-    public SignUpLogin clickSignUpLogin() {
+    @Step("Navigate to Signup / Login")
+    public SignUpLogin navigateToSignUpLogin() {
         elementActions.click(signUpLoginLink);
         return new SignUpLogin(driver);
     }
 
-    @Step("Click Logout link")
-    public Login clickLogout() {
+    @Step("Navigate to Logout")
+    public SignUpLogin navigateToLogout() {
         elementActions.click(logOut);
-        return new Login(driver);
+        return new SignUpLogin(driver);
     }
 
-    @Step("Click Delete Account link")
-    public DeleteAccount clickDeleteAccount() {
+    @Step("Navigate to Delete Account")
+    public DeleteAccount navigateToDeleteAccount() {
         elementActions.click(deleteAccount);
         return new DeleteAccount(driver);
     }
 
-    @Step("Click Video Tutorials link")
-    public void clickVideoTutorials() {
+    @Step("Navigate to Video Tutorials")
+    public void navigateToVideoTutorials() {
         elementActions.click(videoTutorials);
     }
 
-    @Step("Click Contact Us link")
-    public ContactUs clickContactUs() {
+    @Step("Navigate to Contact Us")
+    public ContactUs navigateToContactUs() {
         elementActions.click(contactUs);
         return new ContactUs(driver);
     }

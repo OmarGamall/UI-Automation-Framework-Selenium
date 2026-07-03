@@ -96,6 +96,35 @@ public class JsonReader {
         }
     }
 
+    /**
+     * Reads a value from the parsed JSON using a JsonPath expression and maps it to a specific class.
+     *
+     * @param jsonPath JsonPath expression (e.g. "$.user")
+     * @param clazz    the target class to map the data to
+     * @param <T>      expected return type
+     * @return the mapped object, or null if the path does not exist in the document
+     */
+    public <T> T getJsonData(String jsonPath, Class<T> clazz) {
+        try {
+            return documentContext.read(jsonPath, clazz);
+        } catch (Exception e) {
+            throw new TestDataException(
+                    "Invalid JsonPath expression '" + jsonPath + "' or mapping failed: " + e.getMessage(), e
+            );
+        }
+    }
+
+    /**
+     * Maps the entire JSON document to the given class.
+     *
+     * @param clazz the target class to map the data to
+     * @param <T>   expected return type
+     * @return the mapped object
+     */
+    public <T> T as(Class<T> clazz) {
+        return getJsonData("$", clazz);
+    }
+
     // Custom exception for self-describing test data failures
     public static class TestDataException extends RuntimeException {
         public TestDataException(String message) {

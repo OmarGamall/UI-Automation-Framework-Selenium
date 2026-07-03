@@ -1,28 +1,29 @@
 package com.automationexercise.testcases.ui;
 
+import com.automationexercise.drivers.WebDriverFactory;
+import com.automationexercise.models.User;
+import com.automationexercise.pages.HomePage;
+import com.automationexercise.pages.SignUpLogin;
+import com.automationexercise.utils.JsonReader;
+import org.openqa.selenium.WebDriver;
 import org.testng.annotations.Test;
 
 public class SignUpTest extends BaseTest {
 
-    @Test(description = "Verify successful signup with unique valid credentials", enabled = false)
-    public void testSignUp()
-    {
-        /* TODO: Implement SignUp test for automationexercise.com
-        WebDriver driver = WebDriverFactory.getDriver();
-        String uniqueUser = "User" + System.currentTimeMillis();
-        
-        new HomePage(driver)
-                .clickSignUpTab()
-                .enterUsername(uniqueUser)
-                .enterPassword("password123")
-                .clickSignUpButton();
+    private final User alreadyRegisteredUser = new JsonReader("valid-user").as(User.class);
 
-        AlertActions alertActions = new AlertActions(driver);
-        String alertText = alertActions.getAlertText();
-        Assert.assertEquals(alertText, "Sign up successful.");
-        alertActions.acceptAlert();
-        */
+    @Test(description = "Verify that signing up with an already registered email address displays an error message")
+    public void verifySignUpWithRegisteredEmailAddress()
+    {
+        WebDriver driver = WebDriverFactory.getDriver();
+        new HomePage(driver)
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .navigateToSignUpLogin()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .enterSignUpEmail(alreadyRegisteredUser.getEmail())
+                .enterSignUpName(alreadyRegisteredUser.getUsername())
+                .clickSignUpFailure()
+                .verifySignUpErrorMessage(SignUpLogin.ERROR_EMAIL_ALREADY_EXISTS);
     }
 }
-
-

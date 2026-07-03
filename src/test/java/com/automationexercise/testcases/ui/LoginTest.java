@@ -1,19 +1,18 @@
 package com.automationexercise.testcases.ui;
 
 import com.automationexercise.drivers.WebDriverFactory;
-import org.openqa.selenium.WebDriver;
-import org.testng.annotations.Test;
+import com.automationexercise.models.User;
 import com.automationexercise.pages.HomePage;
 import com.automationexercise.pages.SignUpLogin;
-import com.automationexercise.utils.PropertyReader;
+import com.automationexercise.utils.JsonReader;
+import org.openqa.selenium.WebDriver;
+import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest {
 
-    private final String validUserName = PropertyReader.getProperty("login.valid.username");
-    private final String validUserEmail = PropertyReader.getProperty("login.valid.email");
-    private final String validPassword = PropertyReader.getProperty("login.valid.password");
-    private final String invalidPassword = PropertyReader.getProperty("login.invalid.password");
-    private final String nonexistentEmail = PropertyReader.getProperty("login.nonexistent.email");
+    private final User validUser = new JsonReader("valid-user").as(User.class);
+    private final User invalidPasswordUser = new JsonReader("invalid-password-user").as(User.class);
+    private final User nonExistentUser = new JsonReader("non-existent-user").as(User.class);
 
     @Test(description = "Verify successful login with valid credentials")
     public void verifySuccessfulLogin()
@@ -22,12 +21,13 @@ public class LoginTest extends BaseTest {
         new HomePage(driver)
                 .verifyPageUrl(HomePage.EXPECTED_URL)
                 .getNavigationBar()
-                .clickSignUpLogin()
+                .navigateToSignUpLogin()
                 .verifyPageUrl(SignUpLogin.EXPECTED_URL)
-                .enterLoginEmail(validUserEmail)
-                .enterLoginPassword(validPassword)
+                .enterLoginEmail(validUser.getEmail())
+                .enterLoginPassword(validUser.getPassword())
                 .clickLogInSuccess()
-                .verifyUserLabel(validUserName);
+                .getNavigationBar()
+                .verifyUserLabel(validUser.getUsername());
     }
 
     @Test(description = "Verify that logging in with an incorrect password displays an error message")
@@ -36,10 +36,10 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         new HomePage(driver)
                 .getNavigationBar()
-                .clickSignUpLogin()
+                .navigateToSignUpLogin()
                 .verifyPageUrl(SignUpLogin.EXPECTED_URL)
-                .enterLoginEmail(validUserEmail)
-                .enterLoginPassword(invalidPassword)
+                .enterLoginEmail(validUser.getEmail())
+                .enterLoginPassword(invalidPasswordUser.getPassword())
                 .clickLogInFailure()
                 .verifyLoginErrorMessage(SignUpLogin.ERROR_INVALID_CREDENTIALS);
     }
@@ -49,10 +49,10 @@ public class LoginTest extends BaseTest {
         WebDriver driver = WebDriverFactory.getDriver();
         new HomePage(driver)
                 .getNavigationBar()
-                .clickSignUpLogin()
+                .navigateToSignUpLogin()
                 .verifyPageUrl(SignUpLogin.EXPECTED_URL)
-                .enterLoginEmail(nonexistentEmail)
-                .enterLoginPassword(validPassword)
+                .enterLoginEmail(nonExistentUser.getEmail())
+                .enterLoginPassword(validUser.getPassword())
                 .clickLogInFailure()
                 .verifyLoginErrorMessage(SignUpLogin.ERROR_INVALID_CREDENTIALS);
     }

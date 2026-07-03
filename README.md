@@ -192,12 +192,13 @@ Tests are designed to be isolated, parameterizable, and highly readable:
      new HomePage(driver)
              .verifyPageUrl(HomePage.EXPECTED_URL)
              .getNavigationBar()
-             .clickSignUpLogin()
+             .navigateToSignUpLogin()
              .verifyPageUrl(SignUpLogin.EXPECTED_URL)
-             .enterLoginEmail(validUserEmail)
-             .enterLoginPassword(validPassword)
+             .enterLoginEmail(validUser.getEmail())
+             .enterLoginPassword(validUser.getPassword())
              .clickLogInSuccess()
-             .verifyUserLabel(validUserName);
+             .getNavigationBar()
+             .verifyUserLabel(validUser.getUsername());
      ```
 
 ---
@@ -218,14 +219,18 @@ To handle transient network latency, the framework integrates an automatic retry
 2. **`AnnotationTransformer`**: Implements `IAnnotationTransformer` to programmatically assign the `Retry` analyzer to every test method at suite startup.
 3. **SPI Registration**: The `AnnotationTransformer` is registered using Java's Service Provider Interface (SPI) at `META-INF/services/org.testng.ITestNGListener`.
 
-### Step 7: JSON Test Data Management & Querying
-To enable data-driven testing, the framework includes a modern, thread-safe JSON utility:
+### Step 7: Type-Safe JSON Test Data Management (Records & POJOs)
+To enable robust, scalable, and data-driven testing, the framework maps JSON files directly to Java Records:
 
 1. **`JsonReader`**: A thread-safe reader backed by a global cache.
 2. **Performance Optimization (Parsing Cache)**: Caches parsed representations in a `ConcurrentHashMap` so that file reading and parsing occur exactly once per file across all parallel threads.
 3. **Classpath & Filesystem Resolution**: Searches the classpath first and falls back to filesystem directory lookups.
 4. **Resilient Querying**: Utilizes Jayway `JsonPath` configured with the Jackson Provider.
-5. **Generic Return Types**: The query method uses generic types (`public <T> T getJsonData(String jsonPath)`) to automatically cast values.
+5. **Type-Safe POJO & Record Mapping**:
+   - Instead of querying raw string paths directly in test cases (which leads to brittle, runtime-only errors and copy-paste typos), the framework supports deserializing JSON structures directly to immutable Java Records (e.g. `User.java`).
+   - Exposes `.as(Class<T> clazz)` to map the entire JSON root to a Java object.
+   - Exposes `.getJsonData(String jsonPath, Class<T> clazz)` to extract and deserialize a specific nested JSON path.
+   - **Advantage**: Provides compile-time safety, refactoring support, and full IDE auto-complete (IntelliSense) when writing tests.
 
 ### Step 8: Thread-Safe Logging and Diagnostics
 To facilitate debugging, tracing, and monitoring of test executions, the framework features a thread-safe logging architecture:

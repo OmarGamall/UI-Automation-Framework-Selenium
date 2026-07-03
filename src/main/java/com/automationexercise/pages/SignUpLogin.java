@@ -11,7 +11,7 @@ public class SignUpLogin extends BasePage {
     // Expected Constants
     public static final String EXPECTED_URL = BASE_URL + "login";
     public static final String ERROR_INVALID_CREDENTIALS = "Your email or password is incorrect!";
-
+    public static final String ERROR_EMAIL_ALREADY_EXISTS = "Email Address already exist!";
     // ==========================================
     // Constructor
     // ==========================================
@@ -50,9 +50,9 @@ public class SignUpLogin extends BasePage {
     }
 
     @Step("Click Log In button expecting success")
-    public NavigationBar clickLogInSuccess() {
+    public HomePage clickLogInSuccess() {
         elementActions.click(loginButton);
-        return new NavigationBar(driver);
+        return new HomePage(driver);
     }
 
     @Step("Click Log In button expecting failure")
@@ -81,11 +81,18 @@ public class SignUpLogin extends BasePage {
         return this;
     }
 
-    @Step("Click Sign Up button")
-    public SignUp clickSignUpButton() {
+    @Step("Click Sign Up button expecting success")
+    public SignUp clickSignUpSuccess() {
         elementActions.click(signUpButton);
         return new SignUp(driver);
     }
+
+    @Step("Click Sign Up button expecting failure")
+    public SignUpLogin clickSignUpFailure() {
+        elementActions.click(signUpButton);
+        return this;
+    }
+
 
     // ==========================================
     // Verification
