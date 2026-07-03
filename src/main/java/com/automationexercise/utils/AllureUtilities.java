@@ -46,7 +46,7 @@ public class AllureUtilities {
 
         String os = System.getProperty("os.name");
         String jdk = System.getProperty("java.version");
-        String envUrl = PropertyReader.getProperty("url");
+        String baseUrlWeb = PropertyReader.getProperty("baseUrlWeb");
 
         if (os != null) {
             props.setProperty("OS", os);
@@ -54,8 +54,8 @@ public class AllureUtilities {
         if (jdk != null) {
             props.setProperty("JDK Version", jdk);
         }
-        if (envUrl != null) {
-            props.setProperty("Test Env URL", envUrl);
+        if (baseUrlWeb != null) {
+            props.setProperty("Test Env URL", baseUrlWeb);
         }
 
         try (FileOutputStream fos = new FileOutputStream(envPropertiesFile)) {

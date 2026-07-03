@@ -135,12 +135,20 @@ public class ElementActions {
         });
     }
 
+    /**
+     * Safely checks or unchecks a checkbox based on the desired target state.
+     *
+     * @param locator The By locator of the checkbox
+     * @param select  The target state (true to check, false to uncheck)
+     */
     public void setCheckboxState(By locator, boolean select) {
         LogsManager.info("Setting checkbox [{}] to: {}", locator, select);
         waitManager.fluentWait().until(d -> {
             try {
                 WebElement element = d.findElement(locator);
+                // Scroll checkbox into viewport to prevent click intercept errors
                 new Actions(d).scrollToElement(element).perform();
+                // Only click the checkbox if the current selection state does not match the target state
                 if (element.isSelected() != select) {
                     element.click();
                 }
