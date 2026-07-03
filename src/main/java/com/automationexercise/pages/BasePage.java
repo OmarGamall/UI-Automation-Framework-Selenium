@@ -6,6 +6,7 @@ import com.automationexercise.utils.PropertyReader;
 import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import com.automationexercise.utils.WaitManager;
 
 public abstract class BasePage {
     protected final WebDriver driver;
@@ -27,6 +28,15 @@ public abstract class BasePage {
 
     @Step("Verify that the page URL matches the expected URL: {expectedUrl}")
     public BasePage verifyPageUrl(String expectedUrl) {
+        try {
+            new WaitManager(driver).fluentWait().until(d -> {
+                String actual = d.getCurrentUrl().replaceAll("/$", "");
+                String expected = expectedUrl.replaceAll("/$", "");
+                return actual.equalsIgnoreCase(expected);
+            });
+        } catch (Exception e) {
+            // Ignore wait timeout and let assertion fail below
+        }
         String actualUrl = driver.getCurrentUrl();
         // Normalize trailing slashes to avoid discrepancies
         String normalizedActual = actualUrl.replaceAll("/$", "");

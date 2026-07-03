@@ -8,6 +8,7 @@ import com.automationexercise.pages.SignUp;
 import com.automationexercise.pages.SignUpLogin;
 import com.automationexercise.utils.JsonReader;
 import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static com.automationexercise.utils.UserDataGenerator.generateRandomUser;
@@ -52,5 +53,68 @@ public class SignUpTest extends BaseTest {
                 .enterSignUpName(alreadyRegisteredUser.getUsername())
                 .clickSignUpFailure()
                 .verifySignUpErrorMessage(SignUpLogin.ERROR_EMAIL_ALREADY_EXISTS);
+    }
+
+    @Test(description = "Verify that trying to register without password triggers native HTML5 validation message")
+    public void verifySignUpWithMissingPassword()
+    {
+        WebDriver driver = WebDriverFactory.getDriver();
+        User validUser = generateRandomUser();
+        validUser.setPassword(null); // Clear password to trigger validation
+
+        new HomePage(driver)
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .navigateToSignUpLogin()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .enterSignUpEmail(validUser.getEmail())
+                .enterSignUpName(validUser.getUsername())
+                .clickSignUpSuccess()
+                .verifyPageUrl(SignUp.EXPECTED_URL)
+                .fillRegistrationForm(validUser)
+                .clickCreateAccountFailure()
+                .verifyPasswordValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
+    }
+
+    @Test(description = "Verify that trying to register without Address triggers native HTML5 validation message")
+    public void verifySignUpWithMissingAddress()
+    {
+        WebDriver driver = WebDriverFactory.getDriver();
+        User validUser = generateRandomUser();
+        validUser.setAddress1(null); // Clear Address 1 to trigger validation
+
+        new HomePage(driver)
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .navigateToSignUpLogin()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .enterSignUpEmail(validUser.getEmail())
+                .enterSignUpName(validUser.getUsername())
+                .clickSignUpSuccess()
+                .verifyPageUrl(SignUp.EXPECTED_URL)
+                .fillRegistrationForm(validUser)
+                .clickCreateAccountFailure()
+                .verifyAddress1ValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
+    }
+
+    @Test(description = "Verify that trying to register without Mobile Number triggers native HTML5 validation message")
+    public void verifySignUpWithMissingMobileNumber()
+    {
+        WebDriver driver = WebDriverFactory.getDriver();
+        User validUser = generateRandomUser();
+        validUser.setMobileNumber(null); // Clear Mobile Number to trigger validation
+
+        new HomePage(driver)
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .navigateToSignUpLogin()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .enterSignUpEmail(validUser.getEmail())
+                .enterSignUpName(validUser.getUsername())
+                .clickSignUpSuccess()
+                .verifyPageUrl(SignUp.EXPECTED_URL)
+                .fillRegistrationForm(validUser)
+                .clickCreateAccountFailure()
+                .verifyMobileNumberValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 }

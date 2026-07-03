@@ -4,11 +4,15 @@ import com.automationexercise.models.User;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
 
 public class SignUp extends BasePage {
     
     // Expected URL
     public static final String EXPECTED_URL = BASE_URL + "signup";
+    
+    // Expected Constants
+    public static final String ERROR_REQUIRED_FIELD = "Please fill out this field.";
 
     // ==========================================
     // Locators
@@ -45,11 +49,6 @@ public class SignUp extends BasePage {
         super(driver);
     }
 
-    @Override
-    public SignUp verifyPageUrl(String expectedUrl) {
-        super.verifyPageUrl(expectedUrl);
-        return this;
-    }
 
     // ==========================================
     // Page Actions
@@ -189,6 +188,51 @@ public class SignUp extends BasePage {
         return new AccountCreated(driver);
     }
 
+    @Step("Click 'Create Account' button expecting failure")
+    public SignUp clickCreateAccountFailure() {
+        elementActions.click(createAccountButton);
+        return this;
+    }
+
+    @Step("Get password field native validation message")
+    public String getPasswordValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(passwordInput);
+    }
+
+    @Step("Get Address 1 field native validation message")
+    public String getAddress1ValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(address1Input);
+    }
+
+    @Step("Get Mobile Number field native validation message")
+    public String getMobileNumberValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(mobileNumberInput);
+    }
+
+    // ==========================================
+    // Verifications
+    // ==========================================
+    @Step("Verify password validation message matches: {expectedMessage}")
+    public SignUp verifyPasswordValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getPasswordValidationMessage(), expectedMessage, 
+                "Password field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify Address 1 validation message matches: {expectedMessage}")
+    public SignUp verifyAddress1ValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getAddress1ValidationMessage(), expectedMessage, 
+                "Address 1 field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify Mobile Number validation message matches: {expectedMessage}")
+    public SignUp verifyMobileNumberValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getMobileNumberValidationMessage(), expectedMessage, 
+                "Mobile Number field validation message does not match!");
+        return this;
+    }
+
     @Step("Fill complete registration form for user: {user}")
     public SignUp fillRegistrationForm(User user) {
         if (user.getTitle() != null) {
@@ -245,4 +289,16 @@ public class SignUp extends BasePage {
         }
         return this;
     }
+
+
+
+    // ==========================================
+    // Verification
+    // ==========================================
+    @Override
+    public SignUp verifyPageUrl(String expectedUrl) {
+        super.verifyPageUrl(expectedUrl);
+        return this;
+    }
+
 }

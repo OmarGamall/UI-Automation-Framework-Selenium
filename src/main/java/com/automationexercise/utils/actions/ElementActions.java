@@ -150,4 +150,23 @@ public class ElementActions {
             }
         });
     }
+
+    /**
+     * Retrieves the browser's native HTML5 validation message (e.g. "Please fill out this field.")
+     * for a given input element using the DOM property 'validationMessage'.
+     *
+     * @param locator The By locator of the input element
+     * @return The validation message string, or null if the element is not found
+     */
+    public String getHtml5ValidationMessage(By locator) {
+        LogsManager.info("Retrieving HTML5 native validation message for element [{}]", locator);
+        return waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                return element.getAttribute("validationMessage");
+            } catch (Exception e) {
+                return null;
+            }
+        });
+    }
 }
