@@ -209,6 +209,36 @@ public class SignUp extends BasePage {
         return elementActions.getHtml5ValidationMessage(mobileNumberInput);
     }
 
+    @Step("Get Name field native validation message")
+    public String getNameValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(nameInput);
+    }
+
+    @Step("Get First Name field native validation message")
+    public String getFirstNameValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(firstNameInput);
+    }
+
+    @Step("Get Last Name field native validation message")
+    public String getLastNameValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(lastNameInput);
+    }
+
+    @Step("Get State field native validation message")
+    public String getStateValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(stateInput);
+    }
+
+    @Step("Get City field native validation message")
+    public String getCityValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(cityInput);
+    }
+
+    @Step("Get Zipcode field native validation message")
+    public String getZipcodeValidationMessage() {
+        return elementActions.getHtml5ValidationMessage(zipcodeInput);
+    }
+
     // ==========================================
     // Verifications
     // ==========================================
@@ -230,6 +260,48 @@ public class SignUp extends BasePage {
     public SignUp verifyMobileNumberValidationMessage(String expectedMessage) {
         Assert.assertEquals(getMobileNumberValidationMessage(), expectedMessage, 
                 "Mobile Number field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify Name validation message matches: {expectedMessage}")
+    public SignUp verifyNameValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getNameValidationMessage(), expectedMessage, 
+                "Name field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify First Name validation message matches: {expectedMessage}")
+    public SignUp verifyFirstNameValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getFirstNameValidationMessage(), expectedMessage, 
+                "First Name field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify Last Name validation message matches: {expectedMessage}")
+    public SignUp verifyLastNameValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getLastNameValidationMessage(), expectedMessage, 
+                "Last Name field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify State validation message matches: {expectedMessage}")
+    public SignUp verifyStateValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getStateValidationMessage(), expectedMessage, 
+                "State field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify City validation message matches: {expectedMessage}")
+    public SignUp verifyCityValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getCityValidationMessage(), expectedMessage, 
+                "City field validation message does not match!");
+        return this;
+    }
+
+    @Step("Verify Zipcode validation message matches: {expectedMessage}")
+    public SignUp verifyZipcodeValidationMessage(String expectedMessage) {
+        Assert.assertEquals(getZipcodeValidationMessage(), expectedMessage, 
+                "Zipcode field validation message does not match!");
         return this;
     }
 

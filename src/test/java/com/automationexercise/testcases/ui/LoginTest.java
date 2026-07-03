@@ -5,6 +5,8 @@ import com.automationexercise.models.User;
 import com.automationexercise.pages.HomePage;
 import com.automationexercise.pages.SignUpLogin;
 import com.automationexercise.utils.JsonReader;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.Test;
 
@@ -15,6 +17,7 @@ public class LoginTest extends BaseTest {
     private final User nonExistentUser = new JsonReader("non-existent-user").as(User.class);
 
     @Test(description = "Verify successful login with valid credentials")
+    @Severity(SeverityLevel.BLOCKER)
     public void verifySuccessfulLogin()
     {
         WebDriver driver = WebDriverFactory.getDriver();
@@ -31,6 +34,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test(description = "Verify that logging in with an incorrect password displays an error message")
+    @Severity(SeverityLevel.CRITICAL)
     public void verifyLoginWithIncorrectPassword()
     {
         WebDriver driver = WebDriverFactory.getDriver();
@@ -45,6 +49,7 @@ public class LoginTest extends BaseTest {
     }
 
     @Test(description = "Verify that logging in with a non-existent email displays an error message")
+    @Severity(SeverityLevel.CRITICAL)
     public void verifyLoginWithNonExistentUser() {
         WebDriver driver = WebDriverFactory.getDriver();
         new HomePage(driver)
