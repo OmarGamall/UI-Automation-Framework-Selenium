@@ -13,11 +13,12 @@ This repository implements a robust, thread-safe, and parallel-ready Selenium UI
   - [Step 1: Driver Factory and Thread Safety](#step-1-driver-factory-and-thread-safety)
   - [Step 2: Actions Layer & Dynamic Synchronization](#step-2-actions-layer-dynamic-synchronization)
   - [Step 3: Fluent Page Object Model (POM) & Component Composition](#step-3-fluent-page-object-model-pom--component-composition)
-  - [Step 4: Test Cases & Execution Lifecycle](#step-4-test-cases-execution-lifecycle)
-  - [Step 5: Configuration Management & Scalability](#step-5-configuration-management-scalability)
-  - [Step 6: Flaky Test Retry Mechanism](#step-6-flaky-test-retry-mechanism)
-  - [Step 7: JSON Test Data Management & Querying](#step-7-json-test-data-management-querying)
-  - [Step 8: Thread-Safe Logging and Diagnostics](#step-8-thread-safe-logging-and-diagnostics)
+  - [Step 4: Business/Flow Facades (Facade Design Pattern)](#step-4-businessflow-facades-facade-design-pattern)
+  - [Step 5: Test Cases & Execution Lifecycle](#step-5-test-cases-execution-lifecycle)
+  - [Step 6: Configuration Management & Scalability](#step-6-configuration-management-scalability)
+  - [Step 7: Flaky Test Retry Mechanism](#step-7-flaky-test-retry-mechanism)
+  - [Step 8: JSON Test Data Management & Querying](#step-8-json-test-data-management-querying)
+  - [Step 9: Thread-Safe Logging and Diagnostics](#step-9-thread-safe-logging-and-diagnostics)
 - [Parallel Execution Configuration](#parallel-execution-configuration)
   - [1. testng.xml (Project Root)](#1-testngxml-project-root)
   - [2. pom.xml configuration](#2-pomxml-configuration)
@@ -35,6 +36,10 @@ The framework is structured into distinct modular layers designed for high relia
 ```
                       [ Test Cases ]
                  (TestNG Parallel Execution)
+                             │
+                             ▼
+                     [ Facade Layer ]
+                 (Business/Flow Facades)
                              │
                              ▼
               [ Page Objects & Components ]
@@ -82,6 +87,8 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │   │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
 │   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
+│   │   │   ├── facades
+│   │   │   │   └── LoginFacade.java          # Login flow facade (Business flow wrapper)
 │   │   │   ├── pages
 │   │   │   │   ├── BasePage.java             # Parent Page class defining common URL assertions
 │   │   │   │   ├── HomePage.java             # Home page elements and actions
@@ -177,8 +184,23 @@ Pages and shared layouts are modeled as reusable, fluent page objects:
    Divides page transitions into specific methods (e.g. `clickLogInSuccess()` vs `clickLogInFailure()`) to return the correct page object based on the test scenario.
 5. **Component Composition (`NavigationBar`)**:
    Encapsulates shared headers/footers into reusable component classes composed inside page objects instead of duplicating locators.
+### Step 4: Business/Flow Facades (Facade Design Pattern)
+In software engineering, the **Facade Pattern** provides a simplified, higher-level interface to a larger, more complex body of code. In test automation, we apply this pattern to create **Business Workflow Helpers** or **Hybrid UI/API Orchestrators** (located in the `com.automationexercise.facades` package). These facades sit on top of lower-level Page Objects to expose simple, macro-actions to the test scripts.
 
-### Step 4: Test Cases & Execution Lifecycle
+This prevents test scripts from becoming cluttered with long navigation chains and page transition boilerplate, while decoupling test logic from configuration changes (e.g., swapping a UI-based login setup for a fast API-based login) without modifying the test cases.
+
+**Example Flow in a Test:**
+Instead of calling individual page elements sequentially, tests delegate complex workflows directly to the facade:
+```java
+new LoginFacade(driver)
+        .login(validUser)
+        .getNavigationBar()
+        .verifyUserLabel(validUser.getUsername());
+```
+
+---
+
+### Step 5: Test Cases & Execution Lifecycle
 Tests are designed to be isolated, parameterizable, and highly readable:
 
 1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
@@ -203,7 +225,7 @@ Tests are designed to be isolated, parameterizable, and highly readable:
 
 ---
 
-### Step 5: Configuration Management & Scalability
+### Step 6: Configuration Management & Scalability
 To support scaling up execution across multiple test environments without modifying any code, we externalize settings:
 
 1. **Modular Configuration Files**: Split configurations by domain under resources (`src/main/resources`).
@@ -212,14 +234,14 @@ To support scaling up execution across multiple test environments without modify
 4. **TestNG SPI Execution Listener**: A `TestExecutionListener` is registered through Java SPI (`META-INF/services/org.testng.ITestNGListener`) to automatically invoke property loading at the start of TestNG execution.
 5. **CLI & CI/CD Support**: Allows overriding properties by passing Java System Properties (e.g., `-DbaseUrlWeb=https://staging.automationexercise.com`).
 
-### Step 6: Flaky Test Retry Mechanism
+### Step 7: Flaky Test Retry Mechanism
 To handle transient network latency, the framework integrates an automatic retry mechanism:
 
 1. **`Retry` Analyzer**: A retry controller that implements `IRetryAnalyzer`.
 2. **`AnnotationTransformer`**: Implements `IAnnotationTransformer` to programmatically assign the `Retry` analyzer to every test method at suite startup.
 3. **SPI Registration**: The `AnnotationTransformer` is registered using Java's Service Provider Interface (SPI) at `META-INF/services/org.testng.ITestNGListener`.
 
-### Step 7: Type-Safe JSON Test Data Management (Records & POJOs)
+### Step 8: Type-Safe JSON Test Data Management (Records & POJOs)
 To enable robust, scalable, and data-driven testing, the framework maps JSON files directly to Java Records:
 
 1. **`JsonReader`**: A thread-safe reader backed by a global cache.
@@ -232,7 +254,7 @@ To enable robust, scalable, and data-driven testing, the framework maps JSON fil
    - Exposes `.getJsonData(String jsonPath, Class<T> clazz)` to extract and deserialize a specific nested JSON path.
    - **Advantage**: Provides compile-time safety, refactoring support, and full IDE auto-complete (IntelliSense) when writing tests.
 
-### Step 8: Thread-Safe Logging and Diagnostics
+### Step 9: Thread-Safe Logging and Diagnostics
 To facilitate debugging, tracing, and monitoring of test executions, the framework features a thread-safe logging architecture:
 
 1. **SLF4J & Log4j2 Backend**: Standardized on SLF4J as the logging API and Log4j2 as the implementation engine.

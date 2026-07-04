@@ -3,6 +3,7 @@ package com.automationexercise.testcases.ui;
 import com.automationexercise.drivers.WebDriverFactory;
 import com.automationexercise.models.User;
 import com.automationexercise.pages.HomePage;
+import com.automationexercise.facades.LoginFacade;
 import com.automationexercise.pages.SignUpLogin;
 import com.automationexercise.utils.JsonReader;
 import io.qameta.allure.Severity;
@@ -66,15 +67,8 @@ public class LoginTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     public void verifySuccessfulLogout() {
         WebDriver driver = WebDriverFactory.getDriver();
-        new HomePage(driver)
-                .verifyPageUrl(HomePage.EXPECTED_URL)
-                .getNavigationBar()
-                .navigateToSignUpLogin()
-                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
-                .enterLoginEmail(validUser.getEmail())
-                .enterLoginPassword(validUser.getPassword())
-                .clickLogInSuccess()
-                .verifyPageUrl(HomePage.EXPECTED_URL)
+        new LoginFacade(driver)
+                .login(validUser)
                 .getNavigationBar()
                 .verifyUserLabel(validUser.getUsername())
                 .navigateToLogout()
