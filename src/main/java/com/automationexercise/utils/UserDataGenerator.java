@@ -1,10 +1,25 @@
 package com.automationexercise.utils;
 
+import com.automationexercise.models.ContactUsMessage;
 import com.automationexercise.models.User;
 import net.datafaker.Faker;
 
 public class UserDataGenerator {
     private static final Faker faker = new Faker();
+
+    public static ContactUsMessage generateRandomContactUsMessage() {
+        String name = faker.name().fullName();
+        String email = faker.internet().username() + System.currentTimeMillis() + "@" + faker.internet().domainName();
+        String subject = faker.lorem().sentence(3);
+        String message = faker.lorem().paragraph(2);
+
+        return ContactUsMessage.builder()
+                .name(name)
+                .email(email)
+                .subject(subject)
+                .message(message)
+                .build();
+    }
 
     public static User generateRandomUser() {
         String firstName = faker.name().firstName();
