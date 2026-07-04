@@ -113,4 +113,15 @@ public class NavigationBar {
         return this;
     }
 
+    @Step("Verify that the logged in user label is not displayed")
+    public NavigationBar verifyUserLabelNotDisplayed() {
+        Assert.assertTrue(elementActions.isNotDisplayed(loggedInText), "Logged in message should not be displayed");
+        return this;
+    }
+
+    @Step("Verify that the logout button is not displayed")
+    public NavigationBar verifyLogoutButtonNotDisplayed() {
+        Assert.assertTrue(elementActions.isNotDisplayed(logOut), "Logout button should not be displayed");
+        return this;
+    }
 }

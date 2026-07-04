@@ -61,4 +61,26 @@ public class LoginTest extends BaseTest {
                 .clickLogInFailure()
                 .verifyLoginErrorMessage(SignUpLogin.ERROR_INVALID_CREDENTIALS);
     }
+
+    @Test(description = "Verify that a logged in user can log out successfully")
+    @Severity(SeverityLevel.CRITICAL)
+    public void verifySuccessfulLogout() {
+        WebDriver driver = WebDriverFactory.getDriver();
+        new HomePage(driver)
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .navigateToSignUpLogin()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .enterLoginEmail(validUser.getEmail())
+                .enterLoginPassword(validUser.getPassword())
+                .clickLogInSuccess()
+                .verifyPageUrl(HomePage.EXPECTED_URL)
+                .getNavigationBar()
+                .verifyUserLabel(validUser.getUsername())
+                .navigateToLogout()
+                .verifyPageUrl(SignUpLogin.EXPECTED_URL)
+                .getNavigationBar()
+                .verifyUserLabelNotDisplayed()
+                .verifyLogoutButtonNotDisplayed();
+    }
 }

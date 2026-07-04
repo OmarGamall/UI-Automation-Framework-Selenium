@@ -177,4 +177,26 @@ public class ElementActions {
             }
         });
     }
+
+    /**
+     * Waits for an element to become either absent from the DOM or invisible on the page.
+     * This uses FluentWait to handle page transitions dynamically without static delays.
+     *
+     * @param locator The By locator of the element
+     * @return true if the element becomes invisible/absent within the timeout; false otherwise
+     */
+    public boolean isNotDisplayed(By locator) {
+        LogsManager.info("Waiting for element to be invisible/absent: {}", locator);
+        try {
+            return waitManager.fluentWait().until(d -> {
+                try {
+                    return d.findElements(locator).isEmpty() || !d.findElement(locator).isDisplayed();
+                } catch (Exception e) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
