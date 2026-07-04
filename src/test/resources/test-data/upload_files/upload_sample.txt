@@ -1,0 +1,2 @@
+This is a sample text file for UI automation file upload testing.
+It is located in the test-data/upload_files directory.

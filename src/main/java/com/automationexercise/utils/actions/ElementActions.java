@@ -1,6 +1,7 @@
 package com.automationexercise.utils.actions;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -25,6 +26,25 @@ public class ElementActions {
                 WebElement element = d.findElement(locator);
                 new Actions(d).scrollToElement(element).perform();
                 element.click();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Sends the ENTER key to the element identified by the locator.
+     *
+     * @param locator The By locator of the element
+     */
+    public void pressEnter(By locator) {
+        LogsManager.info("Sending ENTER key to element: {}", locator);
+        waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                new Actions(d).scrollToElement(element).perform();
+                element.sendKeys(Keys.ENTER);
                 return true;
             } catch (Exception e) {
                 return false;
