@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "name": "Blue Top",
+      "price": 500.0,
+      "currency": "Rs",
+      "category": "Women > Tops",
+      "availability": true,
+      "condition": "New",
+      "brand": "Polo"
+    },
+    {
+      "name": "Men Tshirt",
+      "price": 400.0,
+      "currency": "Rs",
+      "category": "Men > Tshirts",
+      "availability": true,
+      "condition": "New",
+      "brand": "H&M"
+    },
+    {
+      "name": "Sleeveless Dress",
+      "price": 1000.0,
+      "currency": "Rs",
+      "category": "Women > Dress",
+      "availability": true,
+      "condition": "New",
+      "brand": "Madame"
+    },
+    {
+      "name": "Summer White Top",
+      "price": 400.0,
+      "currency": "Rs",
+      "category": "Women > Tops",
+      "availability": true,
+      "condition": "New",
+      "brand": "H&M"
+    }
+  ]
+}

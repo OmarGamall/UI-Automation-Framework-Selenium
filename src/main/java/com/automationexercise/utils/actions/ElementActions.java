@@ -19,7 +19,7 @@ public class ElementActions {
         this.waitManager = new WaitManager(driver);
     }
 
-    public void click(By locator) {
+    public ElementActions click(By locator) {
         LogsManager.info("Clicking on element: {}", locator);
         waitManager.fluentWait().until(d -> {
             try {
@@ -31,6 +31,21 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
+    }
+
+    public ElementActions hover(By locator) {
+        LogsManager.info("Hovering on element: {}", locator);
+        waitManager.fluentWait().until(d -> {
+            try {
+                WebElement element = d.findElement(locator);
+                new Actions(d).scrollToElement(element).moveToElement(element).perform();
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+        return this;
     }
 
     /**
@@ -38,7 +53,7 @@ public class ElementActions {
      *
      * @param locator The By locator of the element
      */
-    public void pressEnter(By locator) {
+    public ElementActions pressEnter(By locator) {
         LogsManager.info("Sending ENTER key to element: {}", locator);
         waitManager.fluentWait().until(d -> {
             try {
@@ -50,9 +65,10 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
-    public void sendKeys(By locator, String text) {
+    public ElementActions sendKeys(By locator, String text) {
         LogsManager.info("Typing text in element [{}]: '{}'", locator, text);
         waitManager.fluentWait().until(d -> {
             try {
@@ -65,6 +81,7 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
     public String getText(By locator) {
@@ -102,7 +119,7 @@ public class ElementActions {
         return isDisplayed;
     }
 
-    public void uploadFile(By locator, String filePath) {
+    public ElementActions uploadFile(By locator, String filePath) {
         String FileAbsolutePath = System.getProperty("user.dir") + filePath;
         LogsManager.info("Uploading file '{}' to element [{}]", FileAbsolutePath, locator);
         waitManager.fluentWait().until(d -> {
@@ -115,17 +132,19 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
     // method to scroll to element using javascript executor
-    public void scrollToElementJs(By locator) {
+    public ElementActions scrollToElementJs(By locator) {
         LogsManager.info("Scrolling to element using JS: {}", locator);
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver)
                 .executeScript("arguments[0].scrollIntoView({block: 'center', behaviour: 'auto', inline: 'center'});", element);
+        return this;
     }
 
-    public void selectByVisibleText(By locator, String text) {
+    public ElementActions selectByVisibleText(By locator, String text) {
         LogsManager.info("Selecting option '{}' from drop-down [{}]", text, locator);
         waitManager.fluentWait().until(d -> {
             try {
@@ -138,9 +157,10 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
-    public void selectByValue(By locator, String value) {
+    public ElementActions selectByValue(By locator, String value) {
         LogsManager.info("Selecting option with value '{}' from drop-down [{}]", value, locator);
         waitManager.fluentWait().until(d -> {
             try {
@@ -153,6 +173,7 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
     /**
@@ -161,7 +182,7 @@ public class ElementActions {
      * @param locator The By locator of the checkbox
      * @param select  The target state (true to check, false to uncheck)
      */
-    public void setCheckboxState(By locator, boolean select) {
+    public ElementActions setCheckboxState(By locator, boolean select) {
         LogsManager.info("Setting checkbox [{}] to: {}", locator, select);
         waitManager.fluentWait().until(d -> {
             try {
@@ -177,6 +198,7 @@ public class ElementActions {
                 return false;
             }
         });
+        return this;
     }
 
     /**

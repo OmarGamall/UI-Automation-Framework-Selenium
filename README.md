@@ -89,11 +89,16 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
 │   │   │   ├── facades
 │   │   │   │   └── LoginFacade.java          # Login flow facade (Business flow wrapper)
+│   │   │   ├── models                        # Data Transfer Objects (DTOs) for test data mapping
+│   │   │   │   ├── ContactUsMessage.java     # DTO for contact us messages
+│   │   │   │   ├── Product.java              # DTO for product metadata (price, availability, etc.)
+│   │   │   │   └── User.java                 # DTO for user profile & credentials
 │   │   │   ├── pages
 │   │   │   │   ├── BasePage.java             # Parent Page class defining common URL assertions
 │   │   │   │   ├── HomePage.java             # Home page elements and actions
 │   │   │   │   ├── SignUpLogin.java          # Joint Login and Signup page elements and actions
 │   │   │   │   ├── Products.java             # Products page elements and actions
+│   │   │   │   ├── ProductDetails.java       # Product details page elements and actions
 │   │   │   │   ├── Cart.java                 # Cart page elements and actions
 │   │   │   │   ├── SignUp.java               # Sign up details page elements and actions
 │   │   │   │   ├── DeleteAccount.java        # Delete account confirmation page
@@ -128,13 +133,18 @@ The framework leverages a modern, stable automation ecosystem:
 │       │       └── ui                        # UI test cases
 │       │           ├── BaseTest.java         # Centralized setup & teardown for UI tests
 │       │           ├── LoginTest.java        # Fluent login test cases (uses usercredentials.properties)
+│       │           ├── ProductsTest.java     # Fluent products test cases (catalog search, detail view, etc.)
 │       │           └── SignUpTest.java       # Fluent signup test cases (temporarily disabled)
 │       └── resources
 │           ├── META-INF
 │           │   └── services
 │           │       └── org.testng.ITestNGListener # SPI registration for TestExecutionListener and AnnotationTransformer
-│           ├── test-data
-│           │   └── user-data.json            # Sample JSON test data file
+│           ├── test-data                     # JSON test data files loaded by JsonReader
+│           │   ├── valid-user.json           # User credentials for successful login
+│           │   ├── invalid-password-user.json # User details with incorrect password
+│           │   ├── non-existent-user.json    # Non-existent email credentials
+│           │   ├── products.json             # Product catalog details test data
+│           │   └── upload_files              # Directory containing files for file upload testing
 │           └── usercredentials.properties     # Externalized user login test data
 ├── pom.xml                                   # Maven dependencies and plugin builds
 ├── testng.xml                                # Suite configuration for parallel execution
