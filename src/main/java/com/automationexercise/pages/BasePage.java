@@ -31,16 +31,8 @@ public abstract class BasePage {
 
     @Step("Verify that the page URL matches the expected URL: {expectedUrl}")
     public BasePage verifyPageUrl(String expectedUrl) {
-        try {
-            new WaitManager(driver).fluentWait().until(d -> {
-                String actual = d.getCurrentUrl().replaceAll("/$", "");
-                String expected = expectedUrl.replaceAll("/$", "");
-                return actual.equalsIgnoreCase(expected);
-            });
-        } catch (Exception e) {
-            // Ignore wait timeout and let assertion fail below
-        }
-        String actualUrl = driver.getCurrentUrl();
+        elementActions.waitForUrlToBe(expectedUrl);
+        String actualUrl = elementActions.getCurrentUrl();
         // Normalize trailing slashes to avoid discrepancies
         String normalizedActual = actualUrl.replaceAll("/$", "");
         String normalizedExpected = expectedUrl.replaceAll("/$", "");

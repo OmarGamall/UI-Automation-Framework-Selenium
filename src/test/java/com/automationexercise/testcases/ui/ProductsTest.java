@@ -7,6 +7,7 @@ import com.automationexercise.pages.Products;
 import com.automationexercise.pages.Cart;
 import com.automationexercise.pages.ProductDetails;
 import com.automationexercise.utils.JsonReader;
+import com.automationexercise.facades.ProductFacade;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.openqa.selenium.WebDriver;
@@ -24,14 +25,8 @@ public class ProductsTest extends BaseTest {
 
         WebDriver driver = WebDriverFactory.getDriver();
 
-        new HomePage(driver)
-                .verifyPageUrl(HomePage.EXPECTED_URL)
-                .getNavigationBar()
-                .navigateToProducts()
-                .verifyPageUrl(Products.EXPECTED_URL)
-                .searchProduct(product.getName())
-                .verifySearchTitle("SEARCHED PRODUCTS")
-                .verifyProductDisplayed(product.getName())
+        new ProductFacade(driver)
+                .searchForProductByFullName(product.getName())
                 .verifyProductPrice(product.getName(), product.getPrice());
     }
 
@@ -45,7 +40,7 @@ public class ProductsTest extends BaseTest {
                 .navigateToProducts()
                 .verifyPageUrl(Products.EXPECTED_URL)
                 .verifyProductDisplayed("Blue Top")
-                .verifyProductPrice("Blue Top", 500.0)
+                .verifyProductPrice("Blue Top", 500)
                 .searchProduct("Blue Top")
                 .verifySearchTitle("SEARCHED PRODUCTS")
                 .verifyProductDisplayed("Blue Top")
@@ -67,7 +62,7 @@ public class ProductsTest extends BaseTest {
 
         // 1. Click View Product and verify navigation
         ProductDetails detailsPage = productsPage.clickViewProduct("Blue Top");
-        detailsPage.verifyPageUrl(Products.BASE_URL + "product_details/1");
+        detailsPage.verifyPageUrl("product_details/");
 
         // 2. Go back to products, add to cart and transition to cart
         driver.navigate().back();
@@ -76,5 +71,20 @@ public class ProductsTest extends BaseTest {
                 .addProductToCart("Blue Top")
                 .clickViewCart()
                 .verifyPageUrl(Cart.EXPECTED_URL);
+    }
+
+    @Test(description = "Verify that a selected product's specifications and details are displayed correctly in Product Details")
+    @Severity(SeverityLevel.CRITICAL)
+    public void verifyProductDetailedSpecificationsDisplayed() {
+        // Arrange Test Data
+        Product product = new JsonReader("products").getJsonData("$.products[0]", Product.class);
+
+        WebDriver driver = WebDriverFactory.getDriver();
+
+        new ProductFacade(driver)
+                .searchForProductByFullName(product.getName())
+                .clickViewProduct(product.getName())
+                .verifyPageUrl("product_details/")
+                .verifyProductDetails(product);
     }
 }

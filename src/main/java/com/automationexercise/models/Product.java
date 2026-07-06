@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Product {
     private String name;
-    private Double price;
+    private Integer price;
     private String currency; // e.g., "Rs", "USD"
     private String category;
     private Boolean availability; // true -> In stock, false otherwise

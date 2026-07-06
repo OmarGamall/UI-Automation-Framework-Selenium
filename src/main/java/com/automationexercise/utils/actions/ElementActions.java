@@ -241,4 +241,54 @@ public class ElementActions {
             return false;
         }
     }
+
+    /**
+     * Retrieves the current browser URL.
+     *
+     * @return The current browser URL string
+     */
+    public String getCurrentUrl() {
+        String currentUrl = driver.getCurrentUrl();
+        LogsManager.info("Retrieved current URL: {}", currentUrl);
+        return currentUrl;
+    }
+
+    /**
+     * Waits until the browser URL contains the expected substring.
+     *
+     * @param urlPart the expected part of the URL
+     * @return true if URL contains substring before timeout, false otherwise
+     */
+    public boolean waitForUrlToContain(String urlPart) {
+        LogsManager.info("Waiting for URL to contain: {}", urlPart);
+        try {
+            return waitManager.fluentWait().until(d -> {
+                String url = d.getCurrentUrl();
+                return url != null && url.contains(urlPart);
+            });
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Waits until the browser URL matches the expected URL (ignoring trailing slashes).
+     *
+     * @param expectedUrl the expected URL
+     * @return true if URL matches before timeout, false otherwise
+     */
+    public boolean waitForUrlToBe(String expectedUrl) {
+        LogsManager.info("Waiting for URL to be: {}", expectedUrl);
+        try {
+            return waitManager.fluentWait().until(d -> {
+                String actual = d.getCurrentUrl();
+                if (actual == null) return false;
+                String normalizedActual = actual.replaceAll("/$", "");
+                String normalizedExpected = expectedUrl.replaceAll("/$", "");
+                return normalizedActual.equalsIgnoreCase(normalizedExpected);
+            });
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

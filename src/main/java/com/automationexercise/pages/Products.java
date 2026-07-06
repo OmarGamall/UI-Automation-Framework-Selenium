@@ -60,6 +60,17 @@ public class Products extends BasePage {
     }
 
     // ==========================================
+    // Getters / Query Methods
+    // ==========================================
+
+    @Step("Get price for product: {productName}")
+    public Integer getProductPrice(String productName) {
+        String priceText = elementActions.getText(productPrice(productName));
+        return Integer.parseInt(priceText.replaceAll("[^0-9]", ""));
+    }
+
+
+    // ==========================================
     // Actions
     // ==========================================
 
@@ -118,16 +129,10 @@ public class Products extends BasePage {
         return this;
     }
 
-    @Step("Get price for product: {productName}")
-    public Double getProductPrice(String productName) {
-        String priceText = elementActions.getText(productPrice(productName));
-        return Double.parseDouble(priceText.replaceAll("[^0-9]", ""));
-    }
-
     @Step("Verify that product '{productName}' has price '{expectedPrice}'")
-    public Products verifyProductPrice(String productName, Double expectedPrice) {
+    public Products verifyProductPrice(String productName, Integer expectedPrice) {
         LogsManager.info("Verifying price for product '{}': {}", productName, expectedPrice);
-        Double actualPrice = getProductPrice(productName);
+        Integer actualPrice = getProductPrice(productName);
         Assert.assertEquals(actualPrice, expectedPrice, "Product price does not match!");
         return this;
     }

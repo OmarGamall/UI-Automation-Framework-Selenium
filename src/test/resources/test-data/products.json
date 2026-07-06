@@ -2,7 +2,7 @@
   "products": [
     {
       "name": "Blue Top",
-      "price": 500.0,
+      "price": 500,
       "currency": "Rs",
       "category": "Women > Tops",
       "availability": true,
@@ -11,7 +11,7 @@
     },
     {
       "name": "Men Tshirt",
-      "price": 400.0,
+      "price": 400,
       "currency": "Rs",
       "category": "Men > Tshirts",
       "availability": true,
@@ -20,7 +20,7 @@
     },
     {
       "name": "Sleeveless Dress",
-      "price": 1000.0,
+      "price": 1000,
       "currency": "Rs",
       "category": "Women > Dress",
       "availability": true,
@@ -29,7 +29,7 @@
     },
     {
       "name": "Summer White Top",
-      "price": 400.0,
+      "price": 400,
       "currency": "Rs",
       "category": "Women > Tops",
       "availability": true,

@@ -88,7 +88,8 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
 │   │   │   ├── facades
-│   │   │   │   └── LoginFacade.java          # Login flow facade (Business flow wrapper)
+│   │   │   │   ├── LoginFacade.java          # Login flow facade (Business flow wrapper)
+│   │   │   │   └── ProductFacade.java        # Product search and validation facade
 │   │   │   ├── models                        # Data Transfer Objects (DTOs) for test data mapping
 │   │   │   │   ├── ContactUsMessage.java     # DTO for contact us messages
 │   │   │   │   ├── Product.java              # DTO for product metadata (price, availability, etc.)
