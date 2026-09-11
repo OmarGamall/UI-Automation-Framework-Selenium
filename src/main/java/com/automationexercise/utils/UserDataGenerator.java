@@ -49,7 +49,7 @@ public class UserDataGenerator {
         String address2 = faker.address().secondaryAddress();
         
         // Countries in DOM: India, United States, Canada, Australia, Israel, New Zealand, Singapore
-        String[] countries = {"India", "United States", "Canada", "Australia", "Israel", "New Zealand", "Singapore"};
+        String[] countries = {"India", "United States", "Canada", "Australia", "New Zealand", "Singapore"};
         String country = countries[faker.number().numberBetween(0, countries.length - 1)];
         
         String state = faker.address().state();
