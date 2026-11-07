@@ -11,7 +11,7 @@ import org.testng.annotations.Parameters;
 
 public class BaseTest {
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     @Parameters("browser")
     public void setUp(@Optional("chrome") String browser)
     {

@@ -13,7 +13,7 @@ import static com.automationexercise.utils.UserDataGenerator.generateRandomConta
 
 public class ContactUsTest extends BaseTest {
 
-    @Test(description = "Verify that user can submit contact us form successfully")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify that user can submit contact us form successfully")
     @Severity(SeverityLevel.NORMAL)
     public void verifyContactUsFormSubmission() {
         WebDriver driver = WebDriverFactory.getDriver();

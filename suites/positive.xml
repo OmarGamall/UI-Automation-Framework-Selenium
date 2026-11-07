@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="TestSuite" parallel="methods" thread-count="3">
-    <test name="ParallelTests">
+<suite name="Positive" parallel="methods" thread-count="3">
+    <test name="PositiveTests">
         <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="positive"/>
+            </run>
+        </groups>
         <packages>
             <package name="com.automationexercise.testcases.ui"/>
         </packages>
