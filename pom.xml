@@ -12,7 +12,10 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
+
+        <!-- Suite to run from the suites/ folder. Override with: mvn clean test -Dsuite=smoke -->
+        <suite>regression</suite>
+
         <!-- Dependency & Plugin Versions -->
         <allure.version>2.24.0</allure.version>
         <aspectj.version>1.9.22.1</aspectj.version>
@@ -37,7 +40,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                        <suiteXmlFile>suites/${suite}.xml</suiteXmlFile>
                     </suiteXmlFiles>
                     <!-- Configure AspectJ weaver Java agent -->
                     <argLine>

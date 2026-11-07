@@ -19,7 +19,7 @@ public class SignUpTest extends BaseTest {
 
     private final User alreadyRegisteredUser = new JsonReader("valid-user").as(User.class);
 
-    @Test(description = "Verify that a new user can sign up successfully")
+    @Test(groups = {TestGroups.SMOKE, TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify that a new user can sign up successfully")
     @Severity(SeverityLevel.BLOCKER)
     public void verifySuccessfulSignUp()
     {
@@ -43,7 +43,7 @@ public class SignUpTest extends BaseTest {
                 .verifyUserLabel(validUser.getUsername());
     }
 
-    @Test(description = "Verify that signing up with an already registered email address displays an error message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that signing up with an already registered email address displays an error message")
     @Severity(SeverityLevel.CRITICAL)
     public void verifySignUpWithRegisteredEmailAddress()
     {
@@ -59,7 +59,7 @@ public class SignUpTest extends BaseTest {
                 .verifySignUpErrorMessage(SignUpLogin.ERROR_EMAIL_ALREADY_EXISTS);
     }
 
-    @Test(description = "Verify that trying to register without password triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without password triggers native HTML5 validation message")
     @Severity(SeverityLevel.CRITICAL)
     public void verifySignUpWithMissingPassword()
     {
@@ -81,7 +81,7 @@ public class SignUpTest extends BaseTest {
                 .verifyPasswordValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without Address triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without Address triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingAddress()
     {
@@ -103,7 +103,7 @@ public class SignUpTest extends BaseTest {
                 .verifyAddress1ValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without Mobile Number triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without Mobile Number triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingMobileNumber()
     {
@@ -125,7 +125,7 @@ public class SignUpTest extends BaseTest {
                 .verifyMobileNumberValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without First Name triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without First Name triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingFirstName()
     {
@@ -147,7 +147,7 @@ public class SignUpTest extends BaseTest {
                 .verifyFirstNameValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without Last Name triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without Last Name triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingLastName()
     {
@@ -169,7 +169,7 @@ public class SignUpTest extends BaseTest {
                 .verifyLastNameValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without State triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without State triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingState()
     {
@@ -191,7 +191,7 @@ public class SignUpTest extends BaseTest {
                 .verifyStateValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without City triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without City triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingCity()
     {
@@ -213,7 +213,7 @@ public class SignUpTest extends BaseTest {
                 .verifyCityValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without Zipcode triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without Zipcode triggers native HTML5 validation message")
     @Severity(SeverityLevel.NORMAL)
     public void verifySignUpWithMissingZipcode()
     {
@@ -235,7 +235,7 @@ public class SignUpTest extends BaseTest {
                 .verifyZipcodeValidationMessage(SignUp.ERROR_REQUIRED_FIELD);
     }
 
-    @Test(description = "Verify that trying to register without Name triggers native HTML5 validation message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that trying to register without Name triggers native HTML5 validation message")
     @Severity(SeverityLevel.CRITICAL)
     public void verifySignUpWithMissingName()
     {

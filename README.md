@@ -19,10 +19,10 @@ This repository implements a robust, thread-safe, and parallel-ready Selenium UI
   - [Step 7: Flaky Test Retry Mechanism](#step-7-flaky-test-retry-mechanism)
   - [Step 8: JSON Test Data Management & Querying](#step-8-json-test-data-management-querying)
   - [Step 9: Thread-Safe Logging and Diagnostics](#step-9-thread-safe-logging-and-diagnostics)
-- [Parallel Execution Configuration](#parallel-execution-configuration)
-  - [1. testng.xml (Project Root)](#1-testngxml-project-root)
-  - [2. pom.xml configuration](#2-pomxml-configuration)
+- [Parallel Execution Tuning](#parallel-execution-tuning)
+- [Suite Management](#suite-management)
 - [How to Run](#how-to-run)
+- [Running on Jenkins (Planned)](#running-on-jenkins-planned)
 - [Reporting (Allure)](#reporting-allure)
   - [Option A: Using the Allure Maven Plugin (Recommended)](#option-a-using-the-allure-maven-plugin-recommended)
   - [Option B: Using the Local Allure CLI Tool](#option-b-using-the-local-allure-cli-tool)
@@ -84,6 +84,7 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │   ├── drivers
 │   │   │   │   ├── AbstractDriver.java       # Factory method base class
 │   │   │   │   ├── Browser.java              # Enum defining supported browsers and factories
+│   │   │   │   ├── FirefoxDriverFactory.java # Firefox driver options and creation
 │   │   │   │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
 │   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
@@ -117,7 +118,7 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   │   └── resources
 │   │       ├── allure.properties             # Allure results directory configuration
-│   │       ├── browser.properties            # Browser headless option configuration
+│   │       ├── browser.properties            # Default browser and headless configuration
 │   │       ├── env.properties                # Target application URL configuration (automationexercise.com)
 │   │       ├── log4j2.xml                    # Log4j2 configuration defining console and file appenders
 │   │       ├── retry.properties              # Flaky test retry mechanism configuration
@@ -148,7 +149,11 @@ The framework leverages a modern, stable automation ecosystem:
 │           │   └── upload_files              # Directory containing files for file upload testing
 │           └── usercredentials.properties     # Externalized user login test data
 ├── pom.xml                                   # Maven dependencies and plugin builds
-├── testng.xml                                # Suite configuration for parallel execution
+├── suites                                    # TestNG suite files, selected with -Dsuite=<name>
+│   ├── smoke.xml                             # Critical happy paths
+│   ├── regression.xml                        # All tests (default suite)
+│   ├── positive.xml                          # Valid behaviour only
+│   └── negative.xml                          # Error handling and validation only
 └── README.md
 ```
 
@@ -165,7 +170,7 @@ To support parallel test execution without browser state collision, driver creat
    - Configure arguments: `--disable-notifications` and `--start-maximized`.
    - Set `PageLoadStrategy.EAGER` for faster load times.
 3. **`Browser` (Enum-based Driver Registry)**:
-   - Defines the supported browsers (`CHROME`, `EDGE`).
+   - Defines the supported browsers (`CHROME`, `EDGE`, `FIREFOX`).
    - Each enum constant overrides an abstract `getDriver()` method returning its corresponding `AbstractDriver` factory implementation.
 4. **`WebDriverFactory` (Simple Factory Facade + ThreadLocal)**:
    - Houses the `ThreadLocal<WebDriver>` storage.
@@ -215,7 +220,7 @@ new LoginFacade(driver)
 Tests are designed to be isolated, parameterizable, and highly readable:
 
 1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
-   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `PropertyReader.getProperty("baseUrlWeb")`, and launches the browser to navigate to it.
+   - `setUp()`: Reads the `browser` setting via `PropertyReader.getProperty("browser", "chrome")`, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `PropertyReader.getProperty("baseUrlWeb")`, and launches the browser to navigate to it.
    - `tearDown()`: Quits the active driver and frees up the `ThreadLocal` registry using `WebDriverFactory.unload()`.
 2. **Concrete Test Classes (`LoginTest` / `SignUpTest`)**:
    - Inherit from `BaseTest` to automatically receive clean, thread-safe test environment lifecycles.
@@ -280,29 +285,118 @@ To facilitate debugging, tracing, and monitoring of test executions, the framewo
 
 By default, the framework is configured to run tests concurrently at the method level with 3 concurrent threads to optimize execution speed.
 
-This is managed centrally inside the master `testng.xml` suite file ensuring that your execution behaviors remain identical whether you run tests from your IDE or the Maven CLI.
+This is set in each suite file under `suites/`, so execution behaviour stays identical whether you run tests from your IDE or the Maven CLI.
 
 *   **Parallel Mode**: `methods` (executes individual `@Test` methods in parallel)
 *   **Default Thread Pool**: `3` concurrent threads
 
-To change the thread count or parallel mode, simply modify the `thread-count` and `parallel` attributes in the active TestNG XML suite file (`testng.xml`).
+To change the thread count or parallel mode, modify the `thread-count` and `parallel` attributes in the suite file you want to change (for example, `suites/smoke.xml`).
+
+---
+
+## Suite Management
+
+Tests are organised with **TestNG groups**, not separate folders or classes, because one test can belong to several suites. For example, a successful login is both `smoke` and `positive`. The suites answer two different questions:
+
+- **When do I run it?** `smoke` runs on every change, and `regression` runs before a release.
+- **What does it check?** `positive` covers valid behaviour, and `negative` covers error handling.
+
+| Suite | Tests | Purpose | Suite file |
+|---|---|---|---|
+| `smoke` | 4 | Quick check that the main features work | `suites/smoke.xml` |
+| `regression` | 20 | Full check of everything (default) | `suites/regression.xml` |
+| `positive` | 8 | Valid behaviour only | `suites/positive.xml` |
+| `negative` | 12 | Error handling and validation only | `suites/negative.xml` |
+
+The smoke suite holds one happy path per critical feature: successful login, successful sign-up, product search, and catalog/add to cart.
+
+### Tagging a new test
+
+Group names live in `TestGroups.java`. Every test gets `REGRESSION` plus either `POSITIVE` or `NEGATIVE`. Add `SMOKE` only if the test is a critical happy path, so the suite stays small.
+
+```java
+@Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "...")
+```
+
+### How suite selection works
+
+`pom.xml` builds the suite path from a `suite` property, which defaults to `regression`:
+
+```xml
+<suiteXmlFile>suites/${suite}.xml</suiteXmlFile>
+```
+
+- **Why `-Dsuite` and not `-Dgroups`:** Each suite file states exactly what runs, works from the IDE, and can have its own thread count. Surefire's docs warn that suite XML files are incompatible with several of its other parameters, so this avoids depending on how it combines them.
+- **Why not Maven profiles:** Only the file name changes between suites, so one property is enough. Profiles become useful when several settings must change together, such as a future `ci` profile.
+- **Adding a suite:** Add a group to `TestGroups.java`, tag the tests, and add `suites/<name>.xml`. No `pom.xml` change is needed.
+
+> **Note:** `@BeforeMethod` in `BaseTest` must keep `alwaysRun = true`. Without it, TestNG skips the driver setup when filtering by group, and tests fail with a null driver.
 
 ---
 
 ## How to Run
 
-Execute the test suite from the root directory using Maven:
+Execute a suite from the root directory using Maven:
 
 ```bash
-# Run tests with the default configuration
+# Run the default suite (regression)
 mvn clean test
+
+# Run a specific suite
+mvn clean test -Dsuite=smoke
+mvn clean test -Dsuite=regression
+mvn clean test -Dsuite=positive
+mvn clean test -Dsuite=negative
 
 # Run tests overriding the URL for a different environment (e.g., QA or Staging)
 mvn clean test -DbaseUrlWeb=https://staging.automationexercise.com/
 
-# Run tests in headless mode
-mvn clean test -Dheadless=true
+# Run a suite on a specific browser
+mvn clean test -Dsuite=smoke -Dbrowser=firefox
+
+# Run a suite in headless mode, or with a visible browser
+mvn clean test -Dsuite=smoke -Dheadless=true
+mvn clean test -Dsuite=smoke -Dheadless=false
 ```
+
+From the IDE, right-click a file in `suites/` and run it.
+
+### Runtime Configuration
+
+These settings are read when the tests run. A `-D` value on the command line overrides the value in the properties file.
+
+| Setting | Default is set in | CLI override | Accepted values |
+|---|---|---|---|
+| `browser` | `browser.properties` | `-Dbrowser=edge` | `chrome`, `edge`, `firefox` |
+| `headless` | `browser.properties` | `-Dheadless=true` | `true`, `false` |
+| `baseUrlWeb` | `env.properties` | `-DbaseUrlWeb=https://...` | Any URL |
+
+An unsupported browser name stops the run with an error, rather than silently using a different browser.
+
+---
+
+## Running on Jenkins (Planned)
+
+Jenkins is not set up yet. The plan is for it to call the same command used locally, with `SUITE` and `BROWSER` choice parameters:
+
+```bash
+mvn clean test -Dsuite=${SUITE} -Dbrowser=${BROWSER} -Dheadless=true
+```
+
+| Trigger | Suite |
+|---|---|
+| Every push | `smoke` |
+| Nightly or before a release | `regression` |
+| Manual, when needed | `positive` or `negative` |
+
+Things to handle when setting it up:
+
+- **One suite per build:** `mvn clean` and `AllureUtilities.cleanAllureResults()` both wipe earlier results, so running two suites in one build leaves only the last one in the report.
+- **Maven:** The project has no Maven wrapper (`mvnw`), so Maven must be configured as a Jenkins tool.
+- **Browsers:** The agent needs each browser you offer installed. Pass `-Dheadless=true` so the build doesn't depend on the value in `browser.properties`.
+- **One browser per build:** To cover all three browsers, use three builds or a matrix job, which also keeps each browser's Allure report separate.
+- **Reports after failures:** Failed tests fail the Maven build, so publish the Allure report in a `post { always { ... } }` block.
+- **Live site:** Tests run against the real site, so outages or slowness can fail a build even when the code is fine.
 
 ---
 

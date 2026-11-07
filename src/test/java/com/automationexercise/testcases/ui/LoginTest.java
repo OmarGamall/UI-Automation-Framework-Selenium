@@ -17,7 +17,7 @@ public class LoginTest extends BaseTest {
     private final User invalidPasswordUser = new JsonReader("invalid-password-user").as(User.class);
     private final User nonExistentUser = new JsonReader("non-existent-user").as(User.class);
 
-    @Test(description = "Verify successful login with valid credentials")
+    @Test(groups = {TestGroups.SMOKE, TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify successful login with valid credentials")
     @Severity(SeverityLevel.BLOCKER)
     public void verifySuccessfulLogin()
     {
@@ -34,7 +34,7 @@ public class LoginTest extends BaseTest {
                 .verifyUserLabel(validUser.getUsername());
     }
 
-    @Test(description = "Verify that logging in with an incorrect password displays an error message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that logging in with an incorrect password displays an error message")
     @Severity(SeverityLevel.CRITICAL)
     public void verifyLoginWithIncorrectPassword()
     {
@@ -49,7 +49,7 @@ public class LoginTest extends BaseTest {
                 .verifyLoginErrorMessage(SignUpLogin.ERROR_INVALID_CREDENTIALS);
     }
 
-    @Test(description = "Verify that logging in with a non-existent email displays an error message")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.NEGATIVE}, description = "Verify that logging in with a non-existent email displays an error message")
     @Severity(SeverityLevel.CRITICAL)
     public void verifyLoginWithNonExistentUser() {
         WebDriver driver = WebDriverFactory.getDriver();
@@ -63,7 +63,7 @@ public class LoginTest extends BaseTest {
                 .verifyLoginErrorMessage(SignUpLogin.ERROR_INVALID_CREDENTIALS);
     }
 
-    @Test(description = "Verify that a logged in user can log out successfully")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify that a logged in user can log out successfully")
     @Severity(SeverityLevel.CRITICAL)
     public void verifySuccessfulLogout() {
         WebDriver driver = WebDriverFactory.getDriver();

@@ -17,7 +17,7 @@ public class ProductsTest extends BaseTest {
 
 
 
-    @Test(description = "Verify successful product search using product name")
+    @Test(groups = {TestGroups.SMOKE, TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify successful product search using product name")
     @Severity(SeverityLevel.CRITICAL)
     public void verifySearchProductByProductName() {
         // Arrange Test Data
@@ -30,7 +30,7 @@ public class ProductsTest extends BaseTest {
                 .verifyProductPrice(product.getName(), product.getPrice());
     }
 
-    @Test(description = "Verify products catalog, search, and add to cart functionality")
+    @Test(groups = {TestGroups.SMOKE, TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify products catalog, search, and add to cart functionality")
     @Severity(SeverityLevel.CRITICAL)
     public void verifyProductsCatalogSearchAndCartModal() {
         WebDriver driver = WebDriverFactory.getDriver();
@@ -50,7 +50,7 @@ public class ProductsTest extends BaseTest {
                 .verifyCartModalHidden();
     }
 
-    @Test(description = "Verify product details navigation and cart transition")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify product details navigation and cart transition")
     @Severity(SeverityLevel.NORMAL)
     public void verifyProductDetailsAndViewCartNavigation() {
         WebDriver driver = WebDriverFactory.getDriver();
@@ -73,7 +73,7 @@ public class ProductsTest extends BaseTest {
                 .verifyPageUrl(Cart.EXPECTED_URL);
     }
 
-    @Test(description = "Verify that a selected product's specifications and details are displayed correctly in Product Details")
+    @Test(groups = {TestGroups.REGRESSION, TestGroups.POSITIVE}, description = "Verify that a selected product's specifications and details are displayed correctly in Product Details")
     @Severity(SeverityLevel.CRITICAL)
     public void verifyProductDetailedSpecificationsDisplayed() {
         // Arrange Test Data
