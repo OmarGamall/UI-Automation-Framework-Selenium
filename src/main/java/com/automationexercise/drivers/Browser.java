@@ -1,5 +1,7 @@
 package com.automationexercise.drivers;
 
+import java.util.Arrays;
+
 public enum Browser {
     CHROME {
         @Override
@@ -12,6 +14,12 @@ public enum Browser {
         public AbstractDriver getDriver() {
             return new EdgeDriverFactory();
         }
+    },
+    FIREFOX {
+        @Override
+        public AbstractDriver getDriver() {
+            return new FirefoxDriverFactory();
+        }
     };
 
     public abstract AbstractDriver getDriver();
@@ -23,8 +31,8 @@ public enum Browser {
         try {
             return Browser.valueOf(browserName.toUpperCase().trim());
         } catch (IllegalArgumentException e) {
-            System.out.println("Unsupported browser: " + browserName + ". Defaulting to Chrome.");
-            return CHROME;
+            throw new IllegalArgumentException(
+                    "Unsupported browser: '" + browserName + "'. Supported browsers: " + Arrays.toString(values()), e);
         }
     }
 }

@@ -84,6 +84,7 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │   ├── drivers
 │   │   │   │   ├── AbstractDriver.java       # Factory method base class
 │   │   │   │   ├── Browser.java              # Enum defining supported browsers and factories
+│   │   │   │   ├── FirefoxDriverFactory.java # Firefox driver options and creation
 │   │   │   │   ├── ChromeDriverFactory.java  # Chrome-specific options & instantiation
 │   │   │   │   ├── EdgeDriverFactory.java    # Edge-specific options & instantiation
 │   │   │   │   └── WebDriverFactory.java     # ThreadLocal lifecycle & simple factory facade
@@ -117,7 +118,7 @@ The framework leverages a modern, stable automation ecosystem:
 │   │   │           └── ElementActions.java   # Wrapper actions (scrolling, clicking, waits)
 │   │   └── resources
 │   │       ├── allure.properties             # Allure results directory configuration
-│   │       ├── browser.properties            # Browser headless option configuration
+│   │       ├── browser.properties            # Default browser and headless configuration
 │   │       ├── env.properties                # Target application URL configuration (automationexercise.com)
 │   │       ├── log4j2.xml                    # Log4j2 configuration defining console and file appenders
 │   │       ├── retry.properties              # Flaky test retry mechanism configuration
@@ -169,7 +170,7 @@ To support parallel test execution without browser state collision, driver creat
    - Configure arguments: `--disable-notifications` and `--start-maximized`.
    - Set `PageLoadStrategy.EAGER` for faster load times.
 3. **`Browser` (Enum-based Driver Registry)**:
-   - Defines the supported browsers (`CHROME`, `EDGE`).
+   - Defines the supported browsers (`CHROME`, `EDGE`, `FIREFOX`).
    - Each enum constant overrides an abstract `getDriver()` method returning its corresponding `AbstractDriver` factory implementation.
 4. **`WebDriverFactory` (Simple Factory Facade + ThreadLocal)**:
    - Houses the `ThreadLocal<WebDriver>` storage.
@@ -219,7 +220,7 @@ new LoginFacade(driver)
 Tests are designed to be isolated, parameterizable, and highly readable:
 
 1. **`BaseTest`**: A base class that houses the lifecycle hooks (`@BeforeMethod` and `@AfterMethod`).
-   - `setUp()`: Consumes the `@Parameters("browser")` parameter, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `PropertyReader.getProperty("baseUrlWeb")`, and launches the browser to navigate to it.
+   - `setUp()`: Reads the `browser` setting via `PropertyReader.getProperty("browser", "chrome")`, instantiates the driver via `WebDriverFactory.create(browser)`, fetches the target URL dynamically via `PropertyReader.getProperty("baseUrlWeb")`, and launches the browser to navigate to it.
    - `tearDown()`: Quits the active driver and frees up the `ThreadLocal` registry using `WebDriverFactory.unload()`.
 2. **Concrete Test Classes (`LoginTest` / `SignUpTest`)**:
    - Inherit from `BaseTest` to automatically receive clean, thread-safe test environment lifecycles.
@@ -350,23 +351,36 @@ mvn clean test -Dsuite=negative
 # Run tests overriding the URL for a different environment (e.g., QA or Staging)
 mvn clean test -DbaseUrlWeb=https://staging.automationexercise.com/
 
-# Run a suite in headless mode (already the default in browser.properties)
-mvn clean test -Dsuite=smoke -Dheadless=true
+# Run a suite on a specific browser
+mvn clean test -Dsuite=smoke -Dbrowser=firefox
 
-# Run a suite with a visible browser
+# Run a suite in headless mode, or with a visible browser
+mvn clean test -Dsuite=smoke -Dheadless=true
 mvn clean test -Dsuite=smoke -Dheadless=false
 ```
 
 From the IDE, right-click a file in `suites/` and run it.
 
+### Runtime Configuration
+
+These settings are read when the tests run. A `-D` value on the command line overrides the value in the properties file.
+
+| Setting | Default is set in | CLI override | Accepted values |
+|---|---|---|---|
+| `browser` | `browser.properties` | `-Dbrowser=edge` | `chrome`, `edge`, `firefox` |
+| `headless` | `browser.properties` | `-Dheadless=true` | `true`, `false` |
+| `baseUrlWeb` | `env.properties` | `-DbaseUrlWeb=https://...` | Any URL |
+
+An unsupported browser name stops the run with an error, rather than silently using a different browser.
+
 ---
 
 ## Running on Jenkins (Planned)
 
-Jenkins is not set up yet. The plan is for it to call the same command used locally, with a `SUITE` choice parameter:
+Jenkins is not set up yet. The plan is for it to call the same command used locally, with `SUITE` and `BROWSER` choice parameters:
 
 ```bash
-mvn clean test -Dsuite=${SUITE}
+mvn clean test -Dsuite=${SUITE} -Dbrowser=${BROWSER} -Dheadless=true
 ```
 
 | Trigger | Suite |
@@ -379,9 +393,9 @@ Things to handle when setting it up:
 
 - **One suite per build:** `mvn clean` and `AllureUtilities.cleanAllureResults()` both wipe earlier results, so running two suites in one build leaves only the last one in the report.
 - **Maven:** The project has no Maven wrapper (`mvnw`), so Maven must be configured as a Jenkins tool.
-- **Chrome:** The agent needs Chrome installed. `headless=true` already suits a server.
+- **Browsers:** The agent needs each browser you offer installed. Pass `-Dheadless=true` so the build doesn't depend on the value in `browser.properties`.
+- **One browser per build:** To cover all three browsers, use three builds or a matrix job, which also keeps each browser's Allure report separate.
 - **Reports after failures:** Failed tests fail the Maven build, so publish the Allure report in a `post { always { ... } }` block.
-- **Browser choice:** Suite files set `chrome`, so offering a browser choice in Jenkins needs a small extra change.
 - **Live site:** Tests run against the real site, so outages or slowness can fail a build even when the code is fine.
 
 ---
